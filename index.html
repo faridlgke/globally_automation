@@ -108,7 +108,9 @@
   .s.biru { color: var(--accent); } .s.biru::before { background: var(--accent); }
   .state { padding: 28px 0; color: var(--ink-2); text-align: left; white-space: normal; }
   .state.err { color: var(--bad); }
-  td.judul { white-space: normal; min-width: 300px; max-width: 520px; }
+  td.judul { white-space: normal; min-width: 260px; max-width: 460px; }
+  td.judul .kode { margin-right: 6px; }
+  td.ringkas { white-space: normal; max-width: 180px; font-size: 0.86rem; }
   td.judul a, td.judul button { color: var(--ink); text-decoration: none; font-weight: 500; background: none; border: 0; padding: 0; text-align: left; font: inherit; font-weight: 500; }
   td.judul a:hover, td.judul button:hover, a.tautan:hover { color: var(--accent); text-decoration: underline; }
   td.judul .r { display: block; color: var(--ink-2); font-size: 0.82rem; margin-top: 2px; }
@@ -117,8 +119,8 @@
   .tag.biru { color: var(--accent); border-color: var(--accent); }
   .tag.amber { color: var(--warn); border-color: var(--amber); }
   .alat { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
-  .alat select, .alat input { font: inherit; font-size: 0.86rem; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--rule-2); background: var(--bg); color: var(--ink); min-width: 0; }
-  .alat input[type="search"] { flex: 1 1 200px; }
+  .alat select, .alat input { font: inherit; font-size: 0.86rem; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--rule-2); background: var(--bg); color: var(--ink); min-width: 0; max-width: 240px; }
+  .alat input[type="search"] { flex: 1 1 220px; max-width: none; }
   .aksi { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
   .aksi .n { color: var(--ink-2); font-size: 0.84rem; }
   .kartu-set { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 18px; }
@@ -130,6 +132,10 @@
   dialog.lihat { border: 0; border-radius: 16px; padding: 24px 24px 28px; width: min(1040px, calc(100vw - 32px)); max-height: calc(100vh - 48px); background: var(--bg); color: var(--ink); box-shadow: 0 24px 80px rgba(10, 20, 35, 0.35); }
   dialog.lihat::backdrop { background: rgba(10, 16, 32, 0.66); backdrop-filter: blur(2px); }
   dialog.lihat:not([open]) { display: none; }
+  .lihat .isi { position: relative; padding-right: 44px; }
+  .lihat .tutup-x { position: absolute; top: -4px; right: -4px; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--rule-2); background: var(--bg); color: var(--ink); font-size: 1.3rem; line-height: 1; display: grid; place-items: center; }
+  .lihat .tutup-x:hover { border-color: var(--ink-2); background: var(--hover); }
+  .lihat .kaki { display: flex; justify-content: flex-end; margin-top: 20px; }
   .lihat .kep { display: flex; justify-content: space-between; align-items: baseline; gap: 12px 24px; flex-wrap: wrap; }
   .lihat h4 { font-family: var(--judul); font-size: 1.15rem; font-weight: 700; margin: 0; letter-spacing: -0.01em; max-width: 60ch; }
   .lihat .sub { color: var(--ink-2); font-size: 0.86rem; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 6px 16px; }
@@ -205,12 +211,16 @@
         <input id="f-cari" type="search" placeholder="Cari nama atau penyelenggara…" aria-label="Cari">
       </div>
       <div class="aksi"><span class="n" id="n-qc">–</span></div>
-      <div class="scroll"><table><thead><tr><th>Kode</th><th>Beasiswa</th><th>Negara</th><th>Jenjang</th><th>Dana</th><th>Deadline</th><th>Status</th><th>Layak ID</th><th>QC</th><th class="num">Bukti</th></tr></thead><tbody id="t-qc"><tr><td colspan="10" class="state">memuat…</td></tr></tbody></table></div>
+      <div class="scroll"><table><thead><tr><th>Beasiswa</th><th>Negara</th><th>Jenjang</th><th>Deadline</th><th>Status</th><th>Layak ID</th><th>QC</th><th class="num">Bukti</th></tr></thead><tbody id="t-qc"><tr><td colspan="8" class="state">memuat…</td></tr></tbody></table></div>
     </div>
     <dialog class="lihat" id="lihat" aria-labelledby="lihat-judul">
-      <div class="kep"><div><h4 id="lihat-judul">–</h4><div class="sub" id="lihat-sub"></div></div><button type="button" class="ghost" id="lihat-tutup">Tutup</button></div>
-      <div id="lihat-catatan"></div>
-      <div class="rinci" id="lihat-rinci"></div>
+      <div class="isi">
+        <button type="button" class="tutup-x" id="lihat-tutup" aria-label="Tutup">×</button>
+        <div class="kep"><div><h4 id="lihat-judul">–</h4><div class="sub" id="lihat-sub"></div></div></div>
+        <div id="lihat-catatan"></div>
+        <div class="rinci" id="lihat-rinci"></div>
+        <div class="kaki"><button type="button" class="ghost" id="lihat-tutup-2">Tutup</button></div>
+      </div>
     </dialog>
   </section>
 
@@ -371,9 +381,9 @@
   function gambarQc() {
     var rows = saring(), tb = el("t-qc");
     el("n-qc").textContent = rows.length + " dari " + DATA.length + " beasiswa";
-    if (!rows.length) { tb.innerHTML = '<tr><td colspan="10" class="state">tidak ada yang cocok</td></tr>'; return; }
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="8" class="state">tidak ada yang cocok</td></tr>'; return; }
     tb.innerHTML = rows.slice(0, 400).map(function (r) {
-      return '<tr><td class="kode">' + esc(r.kode) + '</td><td class="judul"><button type="button" data-kode="' + esc(r.kode) + '">' + esc(r.nama) + '</button><span class="r">' + esc(r.penyelenggara) + "</span></td><td>" + esc(r.negara) + "</td><td>" + esc((r.jenjang_kode || []).join(", ") || r.jenjang || "–") + "</td><td>" + esc(r.pendanaan_kode || "–") + '</td><td class="redup">' + (r.deadline_iso ? fmtTgl(r.deadline_iso) : "–") + "</td><td>" + status(ST_BUKA, r.status_hitung) + "</td><td>" + status(ST_LAYAK, r.kelayakan_id) + "</td><td>" + status(ST_QC, r.status_qc) + '</td><td class="num">' + nBukti(r) + "/" + FAKTA.length + "</td></tr>";
+      return '<tr><td class="judul"><button type="button" data-kode="' + esc(r.kode) + '">' + esc(r.nama) + '</button><span class="r"><span class="kode">' + esc(r.kode) + "</span>" + esc((r.penyelenggara || "").slice(0, 90)) + '</span></td><td class="ringkas">' + esc(r.negara) + "</td><td>" + esc((r.jenjang_kode || []).join(", ") || "–") + '</td><td class="redup">' + (r.deadline_iso ? fmtTgl(r.deadline_iso) : (r.deadline_pola === "rolling" ? "rolling" : "–")) + "</td><td>" + status(ST_BUKA, r.status_hitung) + "</td><td>" + status(ST_LAYAK, r.kelayakan_id) + "</td><td>" + status(ST_QC, r.status_qc) + '</td><td class="num">' + nBukti(r) + "/" + FAKTA.length + "</td></tr>";
     }).join("");
     tb.querySelectorAll("button[data-kode]").forEach(function (b) { b.addEventListener("click", function () { bukaRinci(b.getAttribute("data-kode")); }); });
   }
@@ -397,6 +407,7 @@
     if (history.replaceState) history.replaceState(null, "", "#qc/" + kode);
   }
   el("lihat-tutup").addEventListener("click", function () { el("lihat").close(); });
+  el("lihat-tutup-2").addEventListener("click", function () { el("lihat").close(); });
   el("lihat").addEventListener("click", function (ev) { if (ev.target === el("lihat")) el("lihat").close(); });
   ["f-qc", "f-layak", "f-negara", "f-jenjang", "f-buka"].forEach(function (id) { el(id).addEventListener("change", gambarQc); });
   var cariTimer; el("f-cari").addEventListener("input", function () { clearTimeout(cariTimer); cariTimer = setTimeout(gambarQc, 250); });
@@ -444,6 +455,9 @@
     ambil("gl_kandidat_terbaru?select=*&limit=120").then(gambarKandidat).catch(function (e) { el("t-kandidat").innerHTML = '<tr><td colspan="5" class="state err">' + esc(pesanGalat(e, "gl_kandidat_terbaru")) + "</td></tr>"; });
     ambil("gl_log_terbaru?select=*").then(gambarLog).catch(function (e) { el("t-log").innerHTML = '<tr><td colspan="7" class="state err">' + esc(pesanGalat(e, "gl_log_terbaru")) + "</td></tr>"; });
     ambil("gl_ekspor_baris?select=*&limit=2000").then(function (rows) {
+      // yang sudah lolos di atas, lalu perlu cek, lalu sisanya, supaya baris yang berguna tidak tenggelam
+      var urut = { terbit: 0, lolos: 1, perlu_cek: 2, ditolak: 3, impor: 4 };
+      rows.sort(function (a, b) { return (urut[a.status_qc] - urut[b.status_qc]) || String(a.negara).localeCompare(String(b.negara)) || String(a.nama).localeCompare(String(b.nama)); });
       DATA = rows; isiNegara(); gambarQc(); gambarDeadline();
       var m = (location.hash || "").match(/^#qc\/(GL[A-Z0-9]{4})$/); if (m) { pilihTab("qc", false); bukaRinci(m[1]); }
     }).catch(function (e) { el("t-qc").innerHTML = '<tr><td colspan="10" class="state err">' + esc(pesanGalat(e, "gl_ekspor_baris")) + "</td></tr>"; });
