@@ -147,6 +147,21 @@
   .rinci .baris .b.excel { border-left-color: var(--amber); }
   .rinci .baris .v.kosong { color: var(--ink-3); }
   @media (max-width: 640px) { .rinci .baris { grid-template-columns: minmax(0, 1fr); } }
+  .galeri { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 24px 18px; }
+  .item img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 10px; border: 1px solid var(--rule); background: var(--hover); }
+  .item .kosong { aspect-ratio: 4 / 5; display: grid; place-items: center; color: var(--ink-2); font-size: 0.8rem; border: 1px dashed var(--rule-2); border-radius: 10px; text-align: center; padding: 12px; }
+  .item .j { font-size: 0.86rem; font-weight: 500; line-height: 1.35; margin-top: 10px; }
+  .item .m { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 6px; }
+  .item .buka { margin-top: 8px; width: 100%; }
+  .slide-strip { display: flex; gap: 12px; overflow-x: auto; padding: 14px 0 10px; scroll-snap-type: x mandatory; }
+  .slide-strip a { flex: 0 0 auto; width: 216px; scroll-snap-align: start; position: relative; }
+  .slide-strip img { display: block; width: 216px; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 8px; border: 1px solid var(--rule); background: var(--hover); }
+  .slide-strip .n { position: absolute; left: 8px; top: 8px; font-family: var(--mono); font-size: 0.72rem; background: var(--bg); color: var(--ink-2); border-radius: 999px; padding: 1px 8px; border: 1px solid var(--rule-2); }
+  .caption { margin-top: 20px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .caption h5 { font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); margin: 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .caption pre { margin: 0; white-space: pre-wrap; font: inherit; font-size: 0.92rem; line-height: 1.65; max-width: 76ch; color: var(--ink); background: var(--cream); border-radius: 12px; padding: 16px 18px; }
+  .caption .ringkas { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--ink-2); font-size: 0.84rem; }
+  @media (max-width: 760px) { .slide-strip a, .slide-strip img { width: 160px; } }
   .catatan { margin-top: 16px; background: var(--cream); border-radius: 12px; padding: 12px 16px; font-size: 0.86rem; color: var(--ink); }
   .catatan ul { margin: 6px 0 0; padding-left: 18px; }
   .kosong-lembar { padding: 40px 0; color: var(--ink-2); max-width: 60ch; }
@@ -232,7 +247,23 @@
 
   <section class="lembar" id="p-desain" role="tabpanel" hidden>
     <h2 id="j-desain">Desain</h2>
-    <p class="kosong-lembar">Perender carousel dan post globally. belum hidup. Tahap berikutnya: SCHOLARSHIP RADAR per beasiswa yang baru Open dan DEADLINE WATCH mingguan, dari basis data ini, dengan identitas navy, cream, dan electric blue.</p>
+    <p class="lead">Kiriman Instagram yang dirakit dari basis data: SCHOLARSHIP RADAR (carousel lima slide) untuk beasiswa yang lolos QC dan sedang buka, DEADLINE WATCH (post tunggal) untuk deadline 14 hari ke depan. Klik untuk melihat semua slide dan caption.</p>
+    <div class="blok">
+      <div class="galeri" id="galeri"><div class="state">memuat…</div></div>
+    </div>
+    <dialog class="lihat" id="lihat-k" aria-labelledby="lihat-k-judul">
+      <div class="isi">
+        <button type="button" class="tutup-x" id="lihat-k-tutup" aria-label="Tutup">×</button>
+        <div class="kep"><div><h4 id="lihat-k-judul">–</h4><div class="sub" id="lihat-k-sub"></div></div></div>
+        <div class="slide-strip" id="lihat-k-strip"></div>
+        <div class="caption">
+          <h5>Caption <button type="button" class="ghost" id="salin-caption">Salin caption</button></h5>
+          <pre id="lihat-k-caption"></pre>
+          <div class="ringkas" id="lihat-k-meta"></div>
+        </div>
+        <div class="kaki"><button type="button" class="ghost" id="lihat-k-tutup-2">Tutup</button></div>
+      </div>
+    </dialog>
   </section>
 
   <section class="lembar" id="p-terbit" role="tabpanel" hidden>
@@ -383,7 +414,7 @@
     el("n-qc").textContent = rows.length + " dari " + DATA.length + " beasiswa";
     if (!rows.length) { tb.innerHTML = '<tr><td colspan="8" class="state">tidak ada yang cocok</td></tr>'; return; }
     tb.innerHTML = rows.slice(0, 400).map(function (r) {
-      return '<tr><td class="judul"><button type="button" data-kode="' + esc(r.kode) + '">' + esc(r.nama) + '</button><span class="r"><span class="kode">' + esc(r.kode) + "</span>" + esc((r.penyelenggara || "").slice(0, 90)) + '</span></td><td class="ringkas">' + esc(r.negara) + "</td><td>" + esc((r.jenjang_kode || []).join(", ") || "–") + '</td><td class="redup">' + (r.deadline_iso ? fmtTgl(r.deadline_iso) : (r.deadline_pola === "rolling" ? "rolling" : "–")) + "</td><td>" + status(ST_BUKA, r.status_hitung) + "</td><td>" + status(ST_LAYAK, r.kelayakan_id) + "</td><td>" + status(ST_QC, r.status_qc) + '</td><td class="num">' + nBukti(r) + "/" + FAKTA.length + "</td></tr>";
+      return '<tr><td class="judul"><button type="button" data-kode="' + esc(r.kode) + '">' + esc(r.nama) + '</button><span class="r"><span class="kode">' + esc(r.kode) + "</span>" + esc((r.penyelenggara || "").length > 90 ? (r.penyelenggara || "").slice(0, 90).replace(/sS*$/, "") + "…" : (r.penyelenggara || "")) + '</span></td><td class="ringkas">' + esc(r.negara) + "</td><td>" + esc((r.jenjang_kode || []).join(", ") || "–") + '</td><td class="redup">' + (r.deadline_iso ? fmtTgl(r.deadline_iso) : (r.deadline_pola === "rolling" ? "rolling" : "–")) + "</td><td>" + status(ST_BUKA, r.status_hitung) + "</td><td>" + status(ST_LAYAK, r.kelayakan_id) + "</td><td>" + status(ST_QC, r.status_qc) + '</td><td class="num">' + nBukti(r) + "/" + FAKTA.length + "</td></tr>";
     }).join("");
     tb.querySelectorAll("button[data-kode]").forEach(function (b) { b.addEventListener("click", function () { bukaRinci(b.getAttribute("data-kode")); }); });
   }
@@ -430,6 +461,48 @@
     sel.innerHTML = '<option value="">Semua negara</option>' + daftar.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + " (" + ada[n] + ")</option>"; }).join("");
   }
 
+  var GAMBAR = "https://idezvrptuhqkwkwaonzq.supabase.co/storage/v1/object/public/";
+  var ST_KONTEN = { draf: ["warn", "draf"], dikirim: ["biru", "menunggu balasan"], setuju: ["ok", "disetujui"], tolak: ["bad", "ditolak"], terbit: ["ok", "terbit"] };
+  var KONTEN = [];
+  function urlGambar(path) { return path ? GAMBAR + String(path).replace(/^\/+/, "") : null; }
+  function gambarGaleri(rows) {
+    KONTEN = rows;
+    var g = el("galeri");
+    el("c5").textContent = rows.filter(function (r) { return r.gambar_path; }).length;
+    el("k5").innerHTML = rows.length ? '<span class="dot ' + (rows.some(function (r) { return r.gambar_path; }) ? "ok" : "warn") + '"></span>' + rows.length + " konten, " + rows.filter(function (r) { return r.status === "draf"; }).length + " draf" : '<span class="dot"></span>belum ada konten';
+    el("j-desain").innerHTML = rows.length ? "<b>" + rows.filter(function (r) { return r.gambar_path; }).length + "</b> kiriman terender dari <b>" + rows.length + "</b> konten" : "Belum ada konten, menunggu tulis_konten dan render pertama";
+    if (!rows.length) { g.innerHTML = '<div class="state">belum ada konten</div>'; return; }
+    g.innerHTML = rows.map(function (r) {
+      var u = urlGambar(r.gambar_path);
+      var gambar = u ? '<img loading="lazy" src="' + esc(u) + '" alt="' + esc(r.judul) + '">' : '<div class="kosong">belum dirender</div>';
+      return '<article class="item">' + gambar + '<div class="j">' + esc(r.judul.replace(/\*\*/g, "")) + '</div><div class="m"><span class="kode">' + esc(r.kode) + " · " + esc(r.kode_beasiswa) + "</span>" + status(ST_KONTEN, r.status) + '</div><div class="m"><span class="tag">' + esc(r.jenis) + '</span><span class="redup">' + esc(r.negara || "") + '</span></div><button type="button" class="ghost buka" data-kode="' + esc(r.kode) + '">' + (r.bentuk === "tunggal" ? "Buka kiriman" : "Buka carousel · " + (r.jumlah_slide || "?") + " slide") + "</button></article>";
+    }).join("");
+    g.querySelectorAll("button[data-kode]").forEach(function (b) { b.addEventListener("click", function () { bukaKonten(b.getAttribute("data-kode")); }); });
+    var m = (location.hash || "").match(/^#desain\/(GK[A-Z0-9]{4})$/); if (m) { pilihTab("desain", false); bukaKonten(m[1]); }
+  }
+  function bukaKonten(kode) {
+    var r = KONTEN.filter(function (x) { return x.kode === kode; })[0];
+    if (!r) return;
+    el("lihat-k-judul").textContent = r.judul.replace(/\*\*/g, "");
+    el("lihat-k-sub").innerHTML = '<span class="kode">' + esc(r.kode) + "</span><span>" + esc(r.nama_beasiswa) + "</span><span>" + esc(r.negara || "") + "</span>" + status(ST_KONTEN, r.status) + '<span class="tag">' + esc(r.jenis) + "</span>";
+    var strip = el("lihat-k-strip"), n = r.jumlah_slide || 1, dasar = urlGambar(r.gambar_path);
+    strip.innerHTML = dasar ? Array.apply(null, Array(n)).map(function (_, i) {
+      var u = dasar.replace(/01\.png$/, String(i + 1).padStart(2, "0") + ".png");
+      return '<a href="' + esc(u) + '" target="_blank" rel="noopener"><img src="' + esc(u) + '" alt="slide ' + (i + 1) + '"><span class="n">' + (i + 1) + "/" + n + "</span></a>";
+    }).join("") : '<div class="state">belum dirender</div>';
+    el("lihat-k-caption").textContent = r.caption || "";
+    el("lihat-k-meta").innerHTML = "<span>" + esc(r.kaki || "") + "</span><span>dibuat " + fmtWib(r.dibuat_wib) + "</span>" + (r.catatan_model ? "<span>catatan: " + esc(r.catatan_model) + "</span>" : "");
+    var d = el("lihat-k"); if (!d.open) d.showModal();
+    if (history.replaceState) history.replaceState(null, "", "#desain/" + kode);
+  }
+  el("lihat-k-tutup").addEventListener("click", function () { el("lihat-k").close(); });
+  el("lihat-k-tutup-2").addEventListener("click", function () { el("lihat-k").close(); });
+  el("lihat-k").addEventListener("click", function (ev) { if (ev.target === el("lihat-k")) el("lihat-k").close(); });
+  el("salin-caption").addEventListener("click", function () {
+    var t = el("lihat-k-caption").textContent;
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(function () { el("salin-caption").textContent = "Tersalin"; setTimeout(function () { el("salin-caption").textContent = "Salin caption"; }, 1500); });
+  });
+
   function unduhExcel() {
     if (!DATA.length) return;
     var tombol = el("unduh"); tombol.disabled = true;
@@ -453,6 +526,7 @@
     ambil("gl_corong?select=*").then(function (rows) { if (rows[0]) isiSungai(rows[0]); }).catch(function (e) { el("dimuat").textContent = pesanGalat(e, "gl_corong"); });
     ambil("gl_denyut_sumber?select=*").then(gambarDenyut).catch(function (e) { el("t-denyut").innerHTML = '<tr><td colspan="8" class="state err">' + esc(pesanGalat(e, "gl_denyut_sumber")) + "</td></tr>"; });
     ambil("gl_kandidat_terbaru?select=*&limit=120").then(gambarKandidat).catch(function (e) { el("t-kandidat").innerHTML = '<tr><td colspan="5" class="state err">' + esc(pesanGalat(e, "gl_kandidat_terbaru")) + "</td></tr>"; });
+    ambil("gl_konten_terbaru?select=*&limit=120").then(gambarGaleri).catch(function (e) { el("galeri").innerHTML = '<div class="state err">' + esc(pesanGalat(e, "gl_konten_terbaru").replace("sql/003_gl_halaman_status.sql", "sql/004_gl_konten.sql")) + "</div>"; });
     ambil("gl_log_terbaru?select=*").then(gambarLog).catch(function (e) { el("t-log").innerHTML = '<tr><td colspan="7" class="state err">' + esc(pesanGalat(e, "gl_log_terbaru")) + "</td></tr>"; });
     ambil("gl_ekspor_baris?select=*&limit=2000").then(function (rows) {
       // yang sudah lolos di atas, lalu perlu cek, lalu sisanya, supaya baris yang berguna tidak tenggelam
