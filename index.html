@@ -175,7 +175,7 @@
       <div class="merek">paspor beasiswa<i>.</i><small>Basis data beasiswa</small></div>
       <h1>Alur beasiswa, dari penemuan sampai terbit</h1>
     </div>
-    <div class="meta"><span id="dimuat">memuat…</span><button id="unduh" type="button" class="utama">Unduh Excel</button><button id="muat-ulang" type="button" class="ghost">Muat ulang</button></div>
+    <div class="meta"><span id="dimuat">memuat…</span><a class="utama" href="https://docs.google.com/spreadsheets/d/1Y2gUiDLCtAmLNHjMZv-D6yh9f6BvADZLKvkoH5r8I3E/edit" target="_blank" rel="noopener" style="text-decoration:none">Buka Google Sheet ↗</a><button id="unduh" type="button" class="ghost">Unduh Excel</button><button id="muat-ulang" type="button" class="ghost">Muat ulang</button></div>
   </header>
 
   <nav class="sungai" role="tablist" aria-label="Tahap">
@@ -218,6 +218,7 @@
     <div class="kartu-set" id="kartu-qc"></div>
     <div class="blok">
       <div class="alat">
+        <select id="f-asal"><option value="">Semua asal</option><option value="temuan">Temuan baru (feed, Google News)</option><option value="excel">Benih Excel dan KIV</option></select>
         <select id="f-qc"><option value="">Semua status QC</option><option value="lolos">Lolos</option><option value="perlu_cek">Perlu cek</option><option value="terbit">Terbit</option><option value="ditolak">Ditolak</option><option value="impor">Belum diekstraksi</option></select>
         <select id="f-layak"><option value="">Semua kelayakan</option><option value="layak">Layak</option><option value="perlu_cek">Perlu cek</option><option value="tidak">Tidak layak</option></select>
         <select id="f-negara"><option value="">Semua negara</option></select>
@@ -360,7 +361,7 @@
     el("j-deadline").innerHTML = "<b>" + dl + "</b> deadline dalam 30 hari";
     kartu("kartu-kandidat", [[id_(kt), "kandidat", true], [kd, "jadi beasiswa"], [ktl, "ditolak"], [Number(c.kandidat_gabung), "gabung ke master"], [kb, "antre riset"]]);
     kartu("kartu-halaman", [[id_(pt), "halaman dipantau", true], [pb, "terbaca"], [p24, "dicek 24 jam"], [pub, "berubah 7 hari"], [pg, "gagal 3 kali"]]);
-    kartu("kartu-qc", [[id_(bt), "beasiswa", true], [lolos + terbit, "lolos"], [cek, "perlu cek"], [tolak, "ditolak"], [Number(c.layak), "layak Indonesia"], [Number(c.malaysia_lolos) + "/" + Number(c.malaysia_total), "Malaysia lolos"]]);
+    kartu("kartu-qc", [[id_(bt), "beasiswa", true], [lolos + terbit, "lolos"], [cek, "perlu cek"], [tolak, "ditolak"], [Number(c.layak), "layak Indonesia"], [Number(c.malaysia_lolos) + "/" + Number(c.malaysia_total), "Malaysia lolos"], [Number(c.temuan_baru || 0), "temuan baru"]]);
     var hidup = [kt > 0, pb > 0, lolos + terbit > 0, dl > 0, false, false];
     var k = 0; while (k < hidup.length && hidup[k]) k++;
     stasiun.forEach(function (b, i) { b.classList.toggle("hidup", i < k); b.classList.toggle("ujung", i === k - 1); });
@@ -398,8 +399,10 @@
     return n;
   }
   function saring() {
-    var qc = el("f-qc").value, layak = el("f-layak").value, negara = el("f-negara").value, jenjang = el("f-jenjang").value, buka = el("f-buka").value, cari = el("f-cari").value.trim().toLowerCase();
+    var qc = el("f-qc").value, layak = el("f-layak").value, negara = el("f-negara").value, jenjang = el("f-jenjang").value, buka = el("f-buka").value, cari = el("f-cari").value.trim().toLowerCase(), asal = el("f-asal").value;
     return DATA.filter(function (r) {
+      if (asal === "temuan" && (r.sumber_benih === "excel" || r.sumber_benih === "kiv" || r.manual)) return false;
+      if (asal === "excel" && !(r.sumber_benih === "excel" || r.sumber_benih === "kiv" || r.manual)) return false;
       if (qc && r.status_qc !== qc) return false;
       if (layak && r.kelayakan_id !== layak) return false;
       if (negara && r.negara !== negara) return false;
@@ -414,7 +417,7 @@
     el("n-qc").textContent = rows.length + " dari " + DATA.length + " beasiswa";
     if (!rows.length) { tb.innerHTML = '<tr><td colspan="8" class="state">tidak ada yang cocok</td></tr>'; return; }
     tb.innerHTML = rows.slice(0, 400).map(function (r) {
-      return '<tr><td class="judul"><button type="button" data-kode="' + esc(r.kode) + '">' + esc(r.nama) + '</button><span class="r"><span class="kode">' + esc(r.kode) + "</span>" + esc((r.penyelenggara || "").length > 90 ? (r.penyelenggara || "").slice(0, 90).replace(/sS*$/, "") + "…" : (r.penyelenggara || "")) + '</span></td><td class="ringkas">' + esc(r.negara) + "</td><td>" + esc((r.jenjang_kode || []).join(", ") || "–") + '</td><td class="redup">' + (r.deadline_iso ? fmtTgl(r.deadline_iso) : (r.deadline_pola === "rolling" ? "rolling" : "–")) + "</td><td>" + status(ST_BUKA, r.status_hitung) + "</td><td>" + status(ST_LAYAK, r.kelayakan_id) + "</td><td>" + status(ST_QC, r.status_qc) + '</td><td class="num">' + nBukti(r) + "/" + FAKTA.length + "</td></tr>";
+      return '<tr><td class="judul"><button type="button" data-kode="' + esc(r.kode) + '">' + esc(r.nama) + '</button><span class="r"><span class="kode">' + esc(r.kode) + "</span>" + ((r.sumber_benih === "excel" || r.sumber_benih === "kiv" || r.manual) ? "" : '<span class="tag biru">baru · ' + esc(nSumber(r.sumber_benih)) + "</span> ") + esc((r.penyelenggara || "").length > 90 ? (r.penyelenggara || "").slice(0, 90).replace(/sS*$/, "") + "…" : (r.penyelenggara || "")) + '</span></td><td class="ringkas">' + esc(r.negara) + "</td><td>" + esc((r.jenjang_kode || []).join(", ") || "–") + '</td><td class="redup">' + (r.deadline_iso ? fmtTgl(r.deadline_iso) : (r.deadline_pola === "rolling" ? "rolling" : "–")) + "</td><td>" + status(ST_BUKA, r.status_hitung) + "</td><td>" + status(ST_LAYAK, r.kelayakan_id) + "</td><td>" + status(ST_QC, r.status_qc) + '</td><td class="num">' + nBukti(r) + "/" + FAKTA.length + "</td></tr>";
     }).join("");
     tb.querySelectorAll("button[data-kode]").forEach(function (b) { b.addEventListener("click", function () { bukaRinci(b.getAttribute("data-kode")); }); });
   }
@@ -440,7 +443,7 @@
   el("lihat-tutup").addEventListener("click", function () { el("lihat").close(); });
   el("lihat-tutup-2").addEventListener("click", function () { el("lihat").close(); });
   el("lihat").addEventListener("click", function (ev) { if (ev.target === el("lihat")) el("lihat").close(); });
-  ["f-qc", "f-layak", "f-negara", "f-jenjang", "f-buka"].forEach(function (id) { el(id).addEventListener("change", gambarQc); });
+  ["f-asal", "f-qc", "f-layak", "f-negara", "f-jenjang", "f-buka"].forEach(function (id) { el(id).addEventListener("change", gambarQc); });
   var cariTimer; el("f-cari").addEventListener("input", function () { clearTimeout(cariTimer); cariTimer = setTimeout(gambarQc, 250); });
 
   function gambarDeadline() {
