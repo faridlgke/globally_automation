@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alur Beasiswa globally.</title>
+<meta name="description" content="Pantauan basis data beasiswa globally.: penemuan, riset tautan resmi, pemantauan halaman, ekstraksi berbukti, QC kelayakan Indonesia, sampai desain dan terbit.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --bg: #FFFFFF; --ink: #101828; --ink-2: #667085; --ink-3: #A4ADBA; --rule: #ECEAE3; --rule-2: #D5D3CB;
+    --accent: #2563FF; --accent-ink: #FFFFFF; --navy: #0B1020; --cream: #F3F0E8; --hover: #F3F0E8; --amber: #FFB547;
+    --ok: #2E7D4F; --warn: #B8791E; --bad: #B23A3A;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --judul: "Manrope", var(--sans);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0B1020; --ink: #EEF0F6; --ink-2: #A3ADBE; --ink-3: #5B667A; --rule: #1A2234; --rule-2: #2A3550;
+      --accent: #5B86FF; --accent-ink: #0B1020; --navy: #F3F0E8; --cream: #121A2E; --hover: #121A2E;
+      --ok: #7BCB95; --warn: #E7B45E; --bad: #E58A8A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0B1020; --ink: #EEF0F6; --ink-2: #A3ADBE; --ink-3: #5B667A; --rule: #1A2234; --rule-2: #2A3550;
+    --accent: #5B86FF; --accent-ink: #0B1020; --navy: #F3F0E8; --cream: #121A2E; --hover: #121A2E;
+    --ok: #7BCB95; --warn: #E7B45E; --bad: #E58A8A;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans); padding-block: 32px 72px; padding-inline: 20px; line-height: 1.5; font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1160px; margin: 0 auto; }
+  a { color: var(--accent); }
+  code { font-family: var(--mono); font-size: 0.86em; }
+  .kepala { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px 32px; flex-wrap: wrap; }
+  .merek { font-family: var(--judul); font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); display: flex; align-items: center; gap: 6px; }
+  .merek i { color: var(--accent); font-style: normal; font-size: 0.9em; }
+  .merek small { font-family: var(--sans); font-weight: 600; font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2); margin-left: 10px; }
+  h1 { font-family: var(--judul); font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -0.02em; margin: 10px 0 0; line-height: 1.15; text-wrap: balance; }
+  .meta { display: flex; align-items: center; gap: 14px; color: var(--ink-2); font-size: 0.84rem; padding-bottom: 4px; flex-wrap: wrap; }
+  button { font: inherit; cursor: pointer; }
+  .ghost { background: none; border: 1px solid var(--rule-2); color: var(--ink); border-radius: 999px; padding: 6px 14px; font-size: 0.82rem; font-weight: 500; }
+  .ghost:hover { border-color: var(--ink-2); }
+  .utama { background: var(--accent); color: var(--accent-ink); border: 1px solid var(--accent); border-radius: 999px; padding: 8px 16px; font-size: 0.84rem; font-weight: 600; }
+  .utama:disabled { opacity: 0.6; cursor: progress; }
+  button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+
+  .sungai { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-template-rows: auto auto 16px auto; column-gap: 8px; margin-top: 52px; }
+  .garis { grid-column: 1 / -1; grid-row: 3; position: relative; height: 16px; margin-inline: calc(100% / 12); }
+  .garis span { position: absolute; top: 7px; left: 0; height: 2px; border-radius: 2px; }
+  .garis .mati { right: 0; background: var(--rule-2); }
+  .garis .hidup { width: calc(var(--hidup, 0) * 100%); background: var(--accent); }
+  .st { grid-row: 1 / span 4; display: grid; grid-template-rows: subgrid; justify-items: center; align-items: start; text-align: center; background: none; border: 0; padding: 0 4px; color: var(--ink); min-width: 0; position: relative; z-index: 1; border-radius: 12px; }
+  .st:nth-of-type(1) { grid-column: 1; } .st:nth-of-type(2) { grid-column: 2; } .st:nth-of-type(3) { grid-column: 3; }
+  .st:nth-of-type(4) { grid-column: 4; } .st:nth-of-type(5) { grid-column: 5; } .st:nth-of-type(6) { grid-column: 6; }
+  .st .ang { font-family: var(--judul); font-size: clamp(1.7rem, 3.4vw, 2.6rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1; align-self: end; padding-bottom: 8px; color: var(--ink); }
+  .st .ang small { font-size: 0.48em; font-weight: 600; color: var(--ink-3); letter-spacing: -0.01em; margin-left: 2px; }
+  .st .nm { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); padding-bottom: 14px; }
+  .st .titik { width: 14px; height: 14px; border-radius: 50%; background: var(--bg); border: 2px solid var(--rule-2); align-self: center; position: relative; }
+  .st.hidup .titik { border-color: var(--accent); }
+  .st.ujung .titik::after { content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 2px solid var(--amber); opacity: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    .st.ujung .titik::after { animation: denyut 2.2s ease-out infinite; }
+    @keyframes denyut { 0% { transform: scale(0.55); opacity: 0.7; } 100% { transform: scale(1.35); opacity: 0; } }
+    .garis .hidup { transition: width 700ms ease; }
+  }
+  .st .ket { font-size: 0.78rem; color: var(--ink-2); padding-top: 14px; line-height: 1.4; overflow-wrap: anywhere; max-width: 17ch; }
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--rule-2); margin-right: 6px; vertical-align: 1px; }
+  .dot.ok { background: var(--ok); } .dot.warn { background: var(--warn); } .dot.bad { background: var(--bad); }
+  .st:hover .ang, .st:hover .nm, .st[aria-selected="true"] .ang, .st[aria-selected="true"] .nm { color: var(--accent); }
+  .st[aria-selected="true"] .titik { background: var(--accent); border-color: var(--accent); }
+  @media (max-width: 760px) {
+    .sungai { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto; gap: 28px 12px; margin-top: 36px; }
+    .garis { display: none; }
+    .st, .st:nth-of-type(n) { grid-column: auto; grid-row: auto; grid-template-rows: auto auto auto; }
+    .st .titik { display: none; }
+    .st .nm { padding-bottom: 0; }
+    .st .ket { padding-top: 8px; }
+  }
+  @media (max-width: 420px) { .sungai { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+  .lembar { margin-top: 56px; border-top: 1px solid var(--rule); padding-top: 32px; }
+  .lembar[hidden] { display: none; }
+  .lembar h2 { font-family: var(--judul); font-size: clamp(1.25rem, 2.2vw, 1.6rem); font-weight: 700; letter-spacing: -0.02em; margin: 0; line-height: 1.3; text-wrap: balance; }
+  .lembar h2 b { font-weight: 800; color: var(--accent); }
+  .lead { color: var(--ink-2); margin: 10px 0 0; max-width: 76ch; font-size: 0.95rem; }
+  .blok { margin-top: 40px; }
+  .blok h3 { font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); margin: 0 0 10px; display: flex; justify-content: space-between; gap: 8px 20px; flex-wrap: wrap; align-items: baseline; }
+  .blok h3 span { text-transform: none; letter-spacing: 0; font-weight: 400; font-size: 0.82rem; }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 11px 16px 11px 0; border-bottom: 1px solid var(--rule); white-space: nowrap; vertical-align: top; }
+  th { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); border-bottom-color: var(--rule-2); padding-top: 0; }
+  th:last-child, td:last-child { padding-right: 0; }
+  td.num, th.num { text-align: right; font-family: var(--mono); font-size: 0.86em; }
+  td.lebar { white-space: normal; min-width: 240px; max-width: 520px; }
+  td.redup { color: var(--ink-2); }
+  tr:last-child td { border-bottom: 0; }
+  .kode { font-family: var(--mono); font-size: 0.84em; color: var(--ink-2); }
+  .s { display: inline-flex; align-items: center; gap: 7px; font-size: 0.84rem; font-weight: 500; color: var(--ink-2); white-space: nowrap; }
+  .s::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--rule-2); flex: 0 0 auto; }
+  .s.ok { color: var(--ok); } .s.ok::before { background: var(--ok); }
+  .s.warn { color: var(--warn); } .s.warn::before { background: var(--warn); }
+  .s.bad { color: var(--bad); } .s.bad::before { background: var(--bad); }
+  .s.biru { color: var(--accent); } .s.biru::before { background: var(--accent); }
+  .state { padding: 28px 0; color: var(--ink-2); text-align: left; white-space: normal; }
+  .state.err { color: var(--bad); }
+  td.judul { white-space: normal; min-width: 300px; max-width: 520px; }
+  td.judul a, td.judul button { color: var(--ink); text-decoration: none; font-weight: 500; background: none; border: 0; padding: 0; text-align: left; font: inherit; font-weight: 500; }
+  td.judul a:hover, td.judul button:hover, a.tautan:hover { color: var(--accent); text-decoration: underline; }
+  td.judul .r { display: block; color: var(--ink-2); font-size: 0.82rem; margin-top: 2px; }
+  a.tautan { color: var(--accent); text-decoration: none; }
+  .tag { display: inline-block; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); border: 1px solid var(--rule-2); border-radius: 999px; padding: 1px 8px; margin-right: 4px; }
+  .tag.biru { color: var(--accent); border-color: var(--accent); }
+  .tag.amber { color: var(--warn); border-color: var(--amber); }
+  .alat { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+  .alat select, .alat input { font: inherit; font-size: 0.86rem; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--rule-2); background: var(--bg); color: var(--ink); min-width: 0; }
+  .alat input[type="search"] { flex: 1 1 200px; }
+  .aksi { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+  .aksi .n { color: var(--ink-2); font-size: 0.84rem; }
+  .kartu-set { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 18px; }
+  .kartu { border: 1px solid var(--rule); border-radius: 14px; padding: 14px 16px; background: var(--bg); }
+  .kartu .a { font-family: var(--judul); font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+  .kartu .l { font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); margin-top: 6px; font-weight: 600; }
+  .kartu.aksen { background: var(--navy); color: var(--bg); border-color: var(--navy); }
+  .kartu.aksen .l { color: var(--rule-2); }
+  dialog.lihat { border: 0; border-radius: 16px; padding: 24px 24px 28px; width: min(1040px, calc(100vw - 32px)); max-height: calc(100vh - 48px); background: var(--bg); color: var(--ink); box-shadow: 0 24px 80px rgba(10, 20, 35, 0.35); }
+  dialog.lihat::backdrop { background: rgba(10, 16, 32, 0.66); backdrop-filter: blur(2px); }
+  dialog.lihat:not([open]) { display: none; }
+  .lihat .kep { display: flex; justify-content: space-between; align-items: baseline; gap: 12px 24px; flex-wrap: wrap; }
+  .lihat h4 { font-family: var(--judul); font-size: 1.15rem; font-weight: 700; margin: 0; letter-spacing: -0.01em; max-width: 60ch; }
+  .lihat .sub { color: var(--ink-2); font-size: 0.86rem; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 6px 16px; }
+  .rinci { margin-top: 18px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .rinci .baris { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 8px 20px; padding: 10px 0; border-top: 1px solid var(--rule); }
+  .rinci .baris .k { font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); padding-top: 3px; }
+  .rinci .baris .v { font-size: 0.92rem; white-space: pre-wrap; line-height: 1.55; }
+  .rinci .baris .b { display: block; margin-top: 6px; font-size: 0.8rem; color: var(--ink-2); border-left: 3px solid var(--accent); padding-left: 10px; white-space: pre-wrap; }
+  .rinci .baris .b.excel { border-left-color: var(--amber); }
+  .rinci .baris .v.kosong { color: var(--ink-3); }
+  @media (max-width: 640px) { .rinci .baris { grid-template-columns: minmax(0, 1fr); } }
+  .catatan { margin-top: 16px; background: var(--cream); border-radius: 12px; padding: 12px 16px; font-size: 0.86rem; color: var(--ink); }
+  .catatan ul { margin: 6px 0 0; padding-left: 18px; }
+  .kosong-lembar { padding: 40px 0; color: var(--ink-2); max-width: 60ch; }
+  footer { margin-top: 64px; border-top: 1px solid var(--rule); padding-top: 18px; color: var(--ink-2); font-size: 0.8rem; max-width: 80ch; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="kepala">
+    <div>
+      <div class="merek">globally<i>.</i><small>Basis data beasiswa</small></div>
+      <h1>Alur beasiswa, dari penemuan sampai terbit</h1>
+    </div>
+    <div class="meta"><span id="dimuat">memuat…</span><button id="unduh" type="button" class="utama">Unduh Excel</button><button id="muat-ulang" type="button" class="ghost">Muat ulang</button></div>
+  </header>
+
+  <nav class="sungai" role="tablist" aria-label="Tahap">
+    <button class="st" role="tab" data-tab="kandidat" aria-selected="true"><span class="ang" id="c1">–</span><span class="nm">Kandidat</span><span class="titik"></span><span class="ket" id="k1">penemuan</span></button>
+    <button class="st" role="tab" data-tab="halaman"><span class="ang" id="c2">–</span><span class="nm">Halaman resmi</span><span class="titik"></span><span class="ket" id="k2">pemantauan</span></button>
+    <button class="st" role="tab" data-tab="qc"><span class="ang" id="c3">–</span><span class="nm">QC</span><span class="titik"></span><span class="ket" id="k3">ekstraksi berbukti</span></button>
+    <button class="st" role="tab" data-tab="deadline"><span class="ang" id="c4">–</span><span class="nm">Deadline</span><span class="titik"></span><span class="ket" id="k4">30 hari</span></button>
+    <button class="st" role="tab" data-tab="desain"><span class="ang" id="c5">–</span><span class="nm">Desain</span><span class="titik"></span><span class="ket" id="k5">carousel dan post</span></button>
+    <button class="st" role="tab" data-tab="terbit"><span class="ang" id="c6">–</span><span class="nm">Terbit</span><span class="titik"></span><span class="ket" id="k6">per platform</span></button>
+    <div class="garis"><span class="mati"></span><span class="hidup"></span></div>
+  </nav>
+
+  <section class="lembar" id="p-kandidat" role="tabpanel">
+    <h2 id="j-kandidat">Kandidat</h2>
+    <p class="lead">Feed agregator, katalog, dan Google News cuma penunjuk. Tiap kandidat dibuka, dicari tautan resmi penyelenggaranya, dan hanya yang punya tautan resmi yang masuk basis data. Yang bukan beasiswa atau tanpa tautan resmi ditolak dengan alasan.</p>
+    <div class="kartu-set" id="kartu-kandidat"></div>
+    <div class="blok">
+      <h3>Per sumber penemuan <span>tujuh hari terakhir</span></h3>
+      <div class="scroll"><table><thead><tr><th>Sumber</th><th class="num">7 hari</th><th class="num">Total</th><th class="num">Diriset</th><th class="num">Ditolak</th><th class="num">Gabung</th><th class="num">Baru</th><th>Terakhir</th></tr></thead><tbody id="t-denyut"><tr><td colspan="8" class="state">memuat…</td></tr></tbody></table></div>
+    </div>
+    <div class="blok">
+      <h3>Kandidat terbaru <span>120 terakhir</span></h3>
+      <div class="scroll"><table><thead><tr><th>Ditemukan</th><th>Judul</th><th>Sumber</th><th>Status</th><th>Alasan</th></tr></thead><tbody id="t-kandidat"><tr><td colspan="5" class="state">memuat…</td></tr></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="lembar" id="p-halaman" role="tabpanel" hidden>
+    <h2 id="j-halaman">Halaman resmi</h2>
+    <p class="lead">Tiap beasiswa punya halaman resmi yang dipantau: diambil ulang tiap tujuh hari, tiap hari kalau deadline di bawah 30 hari. Isi yang berubah memicu ekstraksi ulang, dan perubahannya tercatat di sini.</p>
+    <div class="kartu-set" id="kartu-halaman"></div>
+    <div class="blok">
+      <h3>Perubahan terakhir <span>deadline, status, kelayakan, tautan</span></h3>
+      <div class="scroll"><table><thead><tr><th>Waktu</th><th>Kode</th><th>Beasiswa</th><th>Kolom</th><th>Dari</th><th>Menjadi</th><th>Oleh</th></tr></thead><tbody id="t-log"><tr><td colspan="7" class="state">memuat…</td></tr></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="lembar" id="p-qc" role="tabpanel" hidden>
+    <h2 id="j-qc">Basis data dan QC</h2>
+    <p class="lead">28 kolom Excel Paspor Beasiswa diisi dari halaman resmi, tiap kolom fakta membawa kutipan bukti. Kolom yang halaman resmi tidak sebut diisi dari Excel benih dan ditandai belum terverifikasi. Klik nama untuk melihat rinciannya.</p>
+    <div class="kartu-set" id="kartu-qc"></div>
+    <div class="blok">
+      <div class="alat">
+        <select id="f-qc"><option value="">Semua status QC</option><option value="lolos">Lolos</option><option value="perlu_cek">Perlu cek</option><option value="terbit">Terbit</option><option value="ditolak">Ditolak</option><option value="impor">Belum diekstraksi</option></select>
+        <select id="f-layak"><option value="">Semua kelayakan</option><option value="layak">Layak</option><option value="perlu_cek">Perlu cek</option><option value="tidak">Tidak layak</option></select>
+        <select id="f-negara"><option value="">Semua negara</option></select>
+        <select id="f-jenjang"><option value="">Semua jenjang</option><option value="S1">S1</option><option value="S2">S2</option><option value="S3">S3</option><option value="POSTDOC">PostDoc</option></select>
+        <select id="f-buka"><option value="">Semua status</option><option value="Open">Open</option><option value="Open Soon">Open Soon</option><option value="Closed">Closed</option><option value="TBC">TBC</option></select>
+        <input id="f-cari" type="search" placeholder="Cari nama atau penyelenggara…" aria-label="Cari">
+      </div>
+      <div class="aksi"><span class="n" id="n-qc">–</span></div>
+      <div class="scroll"><table><thead><tr><th>Kode</th><th>Beasiswa</th><th>Negara</th><th>Jenjang</th><th>Dana</th><th>Deadline</th><th>Status</th><th>Layak ID</th><th>QC</th><th class="num">Bukti</th></tr></thead><tbody id="t-qc"><tr><td colspan="10" class="state">memuat…</td></tr></tbody></table></div>
+    </div>
+    <dialog class="lihat" id="lihat" aria-labelledby="lihat-judul">
+      <div class="kep"><div><h4 id="lihat-judul">–</h4><div class="sub" id="lihat-sub"></div></div><button type="button" class="ghost" id="lihat-tutup">Tutup</button></div>
+      <div id="lihat-catatan"></div>
+      <div class="rinci" id="lihat-rinci"></div>
+    </dialog>
+  </section>
+
+  <section class="lembar" id="p-deadline" role="tabpanel" hidden>
+    <h2 id="j-deadline">Deadline Watch</h2>
+    <p class="lead">Beasiswa yang lolos atau masih dicek dengan deadline dalam 90 hari ke depan, diurutkan dari yang terdekat. Status dihitung dari tanggal, bukan ditulis tangan.</p>
+    <div class="scroll"><table><thead><tr><th>Deadline</th><th class="num">Hari</th><th>Beasiswa</th><th>Negara</th><th>Jenjang</th><th>Dana</th><th>Layak ID</th><th>QC</th></tr></thead><tbody id="t-deadline"><tr><td colspan="8" class="state">memuat…</td></tr></tbody></table></div>
+  </section>
+
+  <section class="lembar" id="p-desain" role="tabpanel" hidden>
+    <h2 id="j-desain">Desain</h2>
+    <p class="kosong-lembar">Perender carousel dan post globally. belum hidup. Tahap berikutnya: SCHOLARSHIP RADAR per beasiswa yang baru Open dan DEADLINE WATCH mingguan, dari basis data ini, dengan identitas navy, cream, dan electric blue.</p>
+  </section>
+
+  <section class="lembar" id="p-terbit" role="tabpanel" hidden>
+    <h2 id="j-terbit">Terbit</h2>
+    <p class="kosong-lembar">Gerbang WhatsApp dan Postiz belum tersambung untuk globally.</p>
+  </section>
+
+  <footer>Dibaca langsung dari basis data globally. lewat kunci publik baca-saja. Angka di tabel berasal dari halaman resmi penyelenggara dengan kutipan bukti; yang bertanda Excel belum diverifikasi. Status Open, Open Soon, Closed, dan TBC dihitung tiap hari dari deadline.</footer>
+</div>
+
+<script>
+(function () {
+  var URL_ = "https://idezvrptuhqkwkwaonzq.supabase.co/rest/v1/";
+  var KEY = "sb_publishable_Hm0-sGWlq_XwDXtHHCT5JA_n6_jhg0a";
+  var TAHAP = ["kandidat", "halaman", "qc", "deadline", "desain", "terbit"];
+  var NAMA_SUMBER = { "feed:scholars4dev": "Scholars4Dev", "feed:oppdesk": "Opportunity Desk", "feed:profellow": "ProFellow", "feed:indbeasiswa": "INDBeasiswa",
+    "feed:beasiswa_id": "Beasiswa.id", "feed:scholarshipscorner": "Scholarships Corner", "feed:eacea": "Katalog Erasmus Mundus", "gnews:gn_beasiswa_ln": "Google News: beasiswa luar negeri",
+    "gnews:gn_scholarship_id": "Google News: scholarship Indonesia", "gnews:gn_beasiswa_my": "Google News: beasiswa Malaysia", "kiv": "Sheet KIV Excel", "excel": "Excel benih", "manual": "Manual" };
+  var ST_QC = { lolos: ["ok", "lolos"], perlu_cek: ["warn", "perlu cek"], ditolak: ["bad", "ditolak"], terbit: ["ok", "terbit"], impor: ["", "belum diekstraksi"], diekstraksi: ["biru", "diekstraksi"], dormant: ["", "dormant"] };
+  var ST_LAYAK = { layak: ["ok", "layak"], perlu_cek: ["warn", "perlu cek"], tidak: ["bad", "tidak"] };
+  var ST_BUKA = { "Open": ["ok", "OPEN NOW"], "Open Soon": ["biru", "UPCOMING"], "Closed": ["", "CLOSED"], "TBC": ["warn", "TBC"] };
+  var ST_KAND = { baru: ["warn", "baru"], diriset: ["ok", "diriset"], tolak: ["bad", "ditolak"], gabung: ["biru", "gabung"] };
+  var KOLOM = [
+    ["Status", "status"], ["Anticipated Application Time", "waktu_daftar"], ["Research/Coursework", "riset_kuliah"], ["1. Scholarship Name", "nama"], ["2. Provider", "penyelenggara"],
+    ["3. Country", "negara"], ["4. Difficulty Rating (1-5) - Curator Research", "kesulitan"], ["5. Scholarship Type", "jenis_pendanaan"], ["6. Level of Study", "jenjang"],
+    ["7. Eligible Nationalities", "kewarganegaraan"], ["8. Min GPA", "ipk_min"], ["9. Language Requirement", "syarat_bahasa"], ["10. Age Limit", "batas_umur"],
+    ["11. Tuition Coverage", "cakupan_kuliah"], ["12. Monthly Stipend", "tunjangan_bulanan"], ["13. Travel Allowance", "tunjangan_perjalanan"], ["14. Health Insurance", "asuransi"],
+    ["15. Accommodation Support", "akomodasi"], ["16. Other Benefits", "manfaat_lain"], ["17. Application Deadline", "deadline_teks"], ["18. Intake/Start", "intake"],
+    ["19. Application Method", "cara_daftar"], ["20. Required Documents", "dokumen"], ["21. Return Obligation (Bond)", "ikatan"], ["22. Official Link", "tautan_resmi"],
+    ["23. Top Pick Universities/Program/Partner's/Research Theme", "program_unggulan"], ["24. Application Strategy", "strategi"], ["25. Important Notes", "catatan_penting"]
+  ];
+  var FAKTA = KOLOM.map(function (k) { return k[1]; }).filter(function (k) { return ["status", "nama", "penyelenggara", "negara", "kesulitan", "tautan_resmi", "strategi", "catatan_penting"].indexOf(k) < 0; });
+  var DATA = [];
+
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function el(id) { return document.getElementById(id); }
+  function id_(x) { return Number(x || 0).toLocaleString("id-ID"); }
+  function fmtWib(s) { if (!s) return "–"; var m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/); return m ? m[3] + "/" + m[2] + " " + m[4] + "." + m[5] : s; }
+  function fmtTgl(s) { var m = String(s || "").match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? m[3] + "/" + m[2] + "/" + m[1] : (s || "–"); }
+  function hari(s) { if (!s) return null; var d = new Date(s + "T00:00:00+07:00"); return Math.round((d - new Date()) / 86400000); }
+  function ambil(path) {
+    return fetch(URL_ + path, { headers: { apikey: KEY, Authorization: "Bearer " + KEY } }).then(function (r) {
+      if (!r.ok) { return r.text().then(function (t) { throw new Error("HTTP " + r.status + " " + t.slice(0, 160)); }); }
+      return r.json();
+    });
+  }
+  function pesanGalat(e, view) { return /PGRST205|42P01/.test(e.message) ? "View " + view + " belum dibuat, jalankan sql/003_gl_halaman_status.sql." : "Gagal memuat: " + e.message; }
+  function status(peta, st) { var p = peta[st] || ["", st || "–"]; return '<span class="s ' + p[0] + '">' + esc(p[1]) + "</span>"; }
+  function bintang(n) { n = Number(n || 0); return n ? "⭐".repeat(n) : "–"; }
+  function nSumber(s) { return NAMA_SUMBER[s] || s; }
+  function kartu(wadah, daftar) {
+    el(wadah).innerHTML = daftar.map(function (k) { return '<div class="kartu' + (k[2] ? " aksen" : "") + '"><div class="a">' + esc(k[0]) + '</div><div class="l">' + esc(k[1]) + "</div></div>"; }).join("");
+  }
+
+  function pilihTab(nm, simpan) {
+    if (TAHAP.indexOf(nm) < 0) nm = "kandidat";
+    document.querySelectorAll(".sungai [data-tab]").forEach(function (b) { b.setAttribute("aria-selected", b.getAttribute("data-tab") === nm ? "true" : "false"); });
+    document.querySelectorAll(".lembar").forEach(function (p) { p.hidden = p.id !== "p-" + nm; });
+    if (simpan) { try { localStorage.setItem("gl-tab", nm); } catch (e) {} if (history.replaceState) history.replaceState(null, "", "#" + nm); }
+  }
+  var stasiun = Array.prototype.slice.call(document.querySelectorAll(".sungai [data-tab]"));
+  stasiun.forEach(function (b, i) {
+    b.addEventListener("click", function () { pilihTab(b.getAttribute("data-tab"), true); });
+    b.addEventListener("keydown", function (ev) {
+      var j = ev.key === "ArrowRight" ? i + 1 : ev.key === "ArrowLeft" ? i - 1 : -1;
+      if (j < 0 || j >= stasiun.length) return;
+      ev.preventDefault(); stasiun[j].focus(); pilihTab(stasiun[j].getAttribute("data-tab"), true);
+    });
+  });
+  (function () {
+    var awal = (location.hash || "").replace("#", "").split("/")[0];
+    if (!awal) { try { awal = localStorage.getItem("gl-tab") || ""; } catch (e) {} }
+    pilihTab(awal || "kandidat", false);
+  })();
+
+  function isiSungai(c) {
+    var kt = Number(c.kandidat_total), kb = Number(c.kandidat_baru), kd = Number(c.kandidat_diriset), ktl = Number(c.kandidat_tolak), k24 = Number(c.kandidat_24jam);
+    var pt = Number(c.pantau_total), pb = Number(c.pantau_terbaca), p24 = Number(c.pantau_24jam), pub = Number(c.pantau_berubah_7h), pg = Number(c.pantau_gagal);
+    var bt = Number(c.beasiswa_total), lolos = Number(c.qc_lolos), cek = Number(c.qc_perlu_cek), tolak = Number(c.qc_ditolak), terbit = Number(c.qc_terbit), impor = Number(c.qc_impor);
+    var dl = Number(c.deadline_30hari), buka = Number(c.buka), segera = Number(c.segera);
+    el("c1").innerHTML = id_(kt);
+    el("k1").innerHTML = '<span class="dot ' + (k24 ? "ok" : "warn") + '"></span>+' + k24 + " dalam 24 jam, " + kd + " diriset";
+    el("c2").innerHTML = id_(pb) + "<small>/" + id_(pt) + "</small>";
+    el("k2").innerHTML = '<span class="dot ' + (pg ? "warn" : "ok") + '"></span>' + p24 + " dicek 24 jam, " + pub + " berubah";
+    el("c3").innerHTML = id_(lolos + terbit) + "<small>/" + id_(bt) + "</small>";
+    el("k3").innerHTML = '<span class="dot ' + (cek ? "warn" : "ok") + '"></span>' + cek + " perlu cek, " + tolak + " ditolak, " + impor + " antre";
+    el("c4").textContent = dl;
+    el("k4").innerHTML = '<span class="dot ' + (dl ? "warn" : "") + '"></span>' + buka + " open, " + segera + " upcoming";
+    el("c5").textContent = 0; el("k5").innerHTML = '<span class="dot"></span>belum hidup';
+    el("c6").textContent = 0; el("k6").innerHTML = '<span class="dot"></span>belum tersambung';
+    el("j-kandidat").innerHTML = "<b>" + id_(kt) + "</b> kandidat ditemukan, <b>" + kd + "</b> jadi beasiswa, <b>" + ktl + "</b> ditolak, <b>" + kb + "</b> antre riset";
+    el("j-halaman").innerHTML = "<b>" + id_(pb) + "</b> dari " + id_(pt) + " halaman resmi terbaca, <b>" + pub + "</b> berubah dalam 7 hari";
+    el("j-qc").innerHTML = "<b>" + id_(lolos + terbit) + "</b> lolos dari " + id_(bt) + " beasiswa, <b>" + cek + "</b> perlu cek, <b>" + tolak + "</b> ditolak";
+    el("j-deadline").innerHTML = "<b>" + dl + "</b> deadline dalam 30 hari";
+    kartu("kartu-kandidat", [[id_(kt), "kandidat", true], [kd, "jadi beasiswa"], [ktl, "ditolak"], [Number(c.kandidat_gabung), "gabung ke master"], [kb, "antre riset"]]);
+    kartu("kartu-halaman", [[id_(pt), "halaman dipantau", true], [pb, "terbaca"], [p24, "dicek 24 jam"], [pub, "berubah 7 hari"], [pg, "gagal 3 kali"]]);
+    kartu("kartu-qc", [[id_(bt), "beasiswa", true], [lolos + terbit, "lolos"], [cek, "perlu cek"], [tolak, "ditolak"], [Number(c.layak), "layak Indonesia"], [Number(c.malaysia_lolos) + "/" + Number(c.malaysia_total), "Malaysia lolos"]]);
+    var hidup = [kt > 0, pb > 0, lolos + terbit > 0, dl > 0, false, false];
+    var k = 0; while (k < hidup.length && hidup[k]) k++;
+    stasiun.forEach(function (b, i) { b.classList.toggle("hidup", i < k); b.classList.toggle("ujung", i === k - 1); });
+    document.querySelector(".sungai").style.setProperty("--hidup", String(Math.max(0, k - 1) / 5));
+    el("dimuat").textContent = "ekstraksi terakhir " + fmtWib(c.ekstrak_terakhir_wib) + " WIB, cek halaman " + fmtWib(c.cek_terakhir_wib);
+  }
+
+  function gambarDenyut(rows) {
+    var tb = el("t-denyut");
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="8" class="state">belum ada kandidat</td></tr>'; return; }
+    rows.sort(function (a, b) { return Number(b.tujuh_hari) - Number(a.tujuh_hari) || Number(b.total) - Number(a.total); });
+    tb.innerHTML = rows.map(function (r) {
+      return "<tr><td>" + esc(nSumber(r.sumber)) + '</td><td class="num">' + r.tujuh_hari + '</td><td class="num">' + r.total + '</td><td class="num">' + r.diriset + '</td><td class="num">' + r.tolak + '</td><td class="num">' + r.gabung + '</td><td class="num">' + r.baru + '</td><td class="redup">' + fmtWib(r.terakhir_wib) + "</td></tr>";
+    }).join("");
+  }
+  function gambarKandidat(rows) {
+    var tb = el("t-kandidat");
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="5" class="state">belum ada kandidat</td></tr>'; return; }
+    tb.innerHTML = rows.map(function (r) {
+      return '<tr><td class="redup">' + fmtWib(r.ditemukan_wib) + '</td><td class="judul"><a href="' + esc(r.tautan) + '" target="_blank" rel="noopener">' + esc(r.nama) + "</a>" + (r.kode_beasiswa ? '<span class="r">masuk master sebagai <span class="kode">' + esc(r.kode_beasiswa) + "</span></span>" : "") + "</td><td>" + esc(nSumber(r.sumber)) + "</td><td>" + status(ST_KAND, r.status) + '</td><td class="lebar redup">' + esc(r.alasan || r.catatan || "") + "</td></tr>";
+    }).join("");
+  }
+  function gambarLog(rows) {
+    var tb = el("t-log");
+    rows = rows.filter(function (r) { return r.kolom !== "*"; });
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="7" class="state">belum ada perubahan tercatat</td></tr>'; return; }
+    tb.innerHTML = rows.slice(0, 150).map(function (r) {
+      return '<tr><td class="redup">' + fmtWib(r.at_wib) + '</td><td class="kode">' + esc(r.kode) + '</td><td class="judul">' + esc(r.nama || "") + '<span class="r">' + esc(r.negara || "") + "</span></td><td>" + esc(r.kolom) + '</td><td class="lebar redup">' + esc((r.lama || "–").slice(0, 120)) + '</td><td class="lebar">' + esc((r.baru || "–").slice(0, 120)) + '</td><td class="redup">' + esc(r.sumber) + "</td></tr>";
+    }).join("");
+  }
+
+  function nBukti(r) {
+    var b = r.bukti || {}, n = 0;
+    FAKTA.forEach(function (k) { if (b[k] && String(b[k]).indexOf("(dari Excel") !== 0) n++; });
+    return n;
+  }
+  function saring() {
+    var qc = el("f-qc").value, layak = el("f-layak").value, negara = el("f-negara").value, jenjang = el("f-jenjang").value, buka = el("f-buka").value, cari = el("f-cari").value.trim().toLowerCase();
+    return DATA.filter(function (r) {
+      if (qc && r.status_qc !== qc) return false;
+      if (layak && r.kelayakan_id !== layak) return false;
+      if (negara && r.negara !== negara) return false;
+      if (jenjang && (r.jenjang_kode || []).indexOf(jenjang) < 0) return false;
+      if (buka && r.status_hitung !== buka) return false;
+      if (cari && (String(r.nama) + " " + String(r.penyelenggara)).toLowerCase().indexOf(cari) < 0) return false;
+      return true;
+    });
+  }
+  function gambarQc() {
+    var rows = saring(), tb = el("t-qc");
+    el("n-qc").textContent = rows.length + " dari " + DATA.length + " beasiswa";
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="10" class="state">tidak ada yang cocok</td></tr>'; return; }
+    tb.innerHTML = rows.slice(0, 400).map(function (r) {
+      return '<tr><td class="kode">' + esc(r.kode) + '</td><td class="judul"><button type="button" data-kode="' + esc(r.kode) + '">' + esc(r.nama) + '</button><span class="r">' + esc(r.penyelenggara) + "</span></td><td>" + esc(r.negara) + "</td><td>" + esc((r.jenjang_kode || []).join(", ") || r.jenjang || "–") + "</td><td>" + esc(r.pendanaan_kode || "–") + '</td><td class="redup">' + (r.deadline_iso ? fmtTgl(r.deadline_iso) : "–") + "</td><td>" + status(ST_BUKA, r.status_hitung) + "</td><td>" + status(ST_LAYAK, r.kelayakan_id) + "</td><td>" + status(ST_QC, r.status_qc) + '</td><td class="num">' + nBukti(r) + "/" + FAKTA.length + "</td></tr>";
+    }).join("");
+    tb.querySelectorAll("button[data-kode]").forEach(function (b) { b.addEventListener("click", function () { bukaRinci(b.getAttribute("data-kode")); }); });
+  }
+  function bukaRinci(kode) {
+    var r = DATA.filter(function (x) { return x.kode === kode; })[0];
+    if (!r) return;
+    var b = r.bukti || {};
+    el("lihat-judul").textContent = r.nama;
+    el("lihat-sub").innerHTML = '<span class="kode">' + esc(r.kode) + "</span><span>" + esc(r.penyelenggara) + "</span><span>" + esc(r.negara) + "</span>" + status(ST_BUKA, r.status_hitung) + status(ST_LAYAK, r.kelayakan_id) + status(ST_QC, r.status_qc) + (r.tautan_resmi ? '<a class="tautan" href="' + esc(r.tautan_resmi) + '" target="_blank" rel="noopener">halaman resmi ↗</a>' : "") + "<span>ekstraksi " + fmtWib(r.ekstrak_wib) + "</span>";
+    var cat = (r.catatan_qc || []);
+    el("lihat-catatan").innerHTML = (r.kelayakan_alasan || cat.length) ? '<div class="catatan">' + (r.kelayakan_alasan ? "<b>Kelayakan:</b> " + esc(r.kelayakan_alasan) + (b.kelayakan ? ' <span class="redup">“' + esc(b.kelayakan) + "”</span>" : "") : "") + (cat.length ? "<ul>" + cat.map(function (c) { return "<li>" + esc(c) + "</li>"; }).join("") + "</ul>" : "") + "</div>" : "";
+    el("lihat-rinci").innerHTML = KOLOM.map(function (k) {
+      var v = k[1] === "kesulitan" ? bintang(r.kesulitan) : k[1] === "status" ? (r.status_hitung || r.status) : r[k[1]];
+      var kosong = !v || /^Not stated/.test(String(v));
+      var bk = b[k[1]];
+      var bukti = bk ? '<span class="b' + (String(bk).indexOf("(dari Excel") === 0 ? " excel" : "") + '">' + esc(bk) + "</span>" : "";
+      var nilai = k[1] === "tautan_resmi" && v ? '<a class="tautan" href="' + esc(v) + '" target="_blank" rel="noopener">' + esc(v) + "</a>" : esc(v || "–");
+      return '<div class="baris"><div class="k">' + esc(k[0]) + '</div><div class="v' + (kosong ? " kosong" : "") + '">' + nilai + bukti + "</div></div>";
+    }).join("");
+    var d = el("lihat"); if (!d.open) d.showModal();
+    if (history.replaceState) history.replaceState(null, "", "#qc/" + kode);
+  }
+  el("lihat-tutup").addEventListener("click", function () { el("lihat").close(); });
+  el("lihat").addEventListener("click", function (ev) { if (ev.target === el("lihat")) el("lihat").close(); });
+  ["f-qc", "f-layak", "f-negara", "f-jenjang", "f-buka"].forEach(function (id) { el(id).addEventListener("change", gambarQc); });
+  var cariTimer; el("f-cari").addEventListener("input", function () { clearTimeout(cariTimer); cariTimer = setTimeout(gambarQc, 250); });
+
+  function gambarDeadline() {
+    var tb = el("t-deadline");
+    var rows = DATA.filter(function (r) { var h = hari(r.deadline_iso); return h !== null && h >= -1 && h <= 90 && ["lolos", "terbit", "perlu_cek"].indexOf(r.status_qc) >= 0; });
+    rows.sort(function (a, b) { return String(a.deadline_iso).localeCompare(String(b.deadline_iso)); });
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="8" class="state">tidak ada deadline dalam 90 hari</td></tr>'; return; }
+    tb.innerHTML = rows.map(function (r) {
+      var h = hari(r.deadline_iso);
+      return "<tr><td>" + fmtTgl(r.deadline_iso) + '</td><td class="num">' + (h <= 7 ? '<span class="tag amber">' + h + " hari</span>" : h + " hari") + '</td><td class="judul"><button type="button" data-kode="' + esc(r.kode) + '">' + esc(r.nama) + '</button><span class="r">' + esc(r.penyelenggara) + "</span></td><td>" + esc(r.negara) + "</td><td>" + esc((r.jenjang_kode || []).join(", ") || "–") + "</td><td>" + esc(r.pendanaan_kode || "–") + "</td><td>" + status(ST_LAYAK, r.kelayakan_id) + "</td><td>" + status(ST_QC, r.status_qc) + "</td></tr>";
+    }).join("");
+    tb.querySelectorAll("button[data-kode]").forEach(function (b) { b.addEventListener("click", function () { pilihTab("qc", true); bukaRinci(b.getAttribute("data-kode")); }); });
+  }
+  function isiNegara() {
+    var sel = el("f-negara"), ada = {};
+    DATA.forEach(function (r) { ada[r.negara] = (ada[r.negara] || 0) + 1; });
+    var daftar = Object.keys(ada).sort(function (a, b) { return ada[b] - ada[a] || a.localeCompare(b); });
+    sel.innerHTML = '<option value="">Semua negara</option>' + daftar.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + " (" + ada[n] + ")</option>"; }).join("");
+  }
+
+  function unduhExcel() {
+    if (!DATA.length) return;
+    var tombol = el("unduh"); tombol.disabled = true;
+    var rows = DATA.filter(function (r) { return ["lolos", "terbit", "perlu_cek"].indexOf(r.status_qc) >= 0; });
+    var sch = rows.map(function (r) { var o = {}; KOLOM.forEach(function (k) { o[k[0]] = k[1] === "kesulitan" ? bintang(r.kesulitan).replace(/–/, "") : k[1] === "status" ? (r.status_hitung || "") : (r[k[1]] || ""); }); return o; });
+    var qc = rows.map(function (r) { return { "Kode": r.kode, "Scholarship Name": r.nama, "Status QC": r.status_qc, "Eligible for Indonesians": r.kelayakan_id, "Reason": r.kelayakan_alasan, "Deadline (ISO)": r.deadline_iso, "Status computed": r.status_hitung, "Verified columns": nBukti(r) + "/" + FAKTA.length, "Columns from seed Excel, not yet verified": ((r.bukti || {})._dari_excel || []).join(", "), "QC notes": (r.catatan_qc || []).join("\n") }; });
+    var wb = XLSX.utils.book_new();
+    var ws = XLSX.utils.json_to_sheet(sch, { header: KOLOM.map(function (k) { return k[0]; }) });
+    ws["!cols"] = KOLOM.map(function (k) { return { wch: k[0] === "Status" ? 11 : k[1] === "kesulitan" ? 47 : 60 }; });
+    ws["!freeze"] = { xSplit: 0, ySplit: 1 };
+    XLSX.utils.book_append_sheet(wb, ws, "Scholarship");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(qc), "QC");
+    var d = new Date(), stempel = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    XLSX.writeFile(wb, "Global_Scholarship_Database_" + stempel + ".xlsx");
+    tombol.disabled = false;
+  }
+  el("unduh").addEventListener("click", unduhExcel);
+
+  function muat() {
+    el("dimuat").textContent = "memuat…";
+    ambil("gl_corong?select=*").then(function (rows) { if (rows[0]) isiSungai(rows[0]); }).catch(function (e) { el("dimuat").textContent = pesanGalat(e, "gl_corong"); });
+    ambil("gl_denyut_sumber?select=*").then(gambarDenyut).catch(function (e) { el("t-denyut").innerHTML = '<tr><td colspan="8" class="state err">' + esc(pesanGalat(e, "gl_denyut_sumber")) + "</td></tr>"; });
+    ambil("gl_kandidat_terbaru?select=*&limit=120").then(gambarKandidat).catch(function (e) { el("t-kandidat").innerHTML = '<tr><td colspan="5" class="state err">' + esc(pesanGalat(e, "gl_kandidat_terbaru")) + "</td></tr>"; });
+    ambil("gl_log_terbaru?select=*").then(gambarLog).catch(function (e) { el("t-log").innerHTML = '<tr><td colspan="7" class="state err">' + esc(pesanGalat(e, "gl_log_terbaru")) + "</td></tr>"; });
+    ambil("gl_ekspor_baris?select=*&limit=2000").then(function (rows) {
+      DATA = rows; isiNegara(); gambarQc(); gambarDeadline();
+      var m = (location.hash || "").match(/^#qc\/(GL[A-Z0-9]{4})$/); if (m) { pilihTab("qc", false); bukaRinci(m[1]); }
+    }).catch(function (e) { el("t-qc").innerHTML = '<tr><td colspan="10" class="state err">' + esc(pesanGalat(e, "gl_ekspor_baris")) + "</td></tr>"; });
+  }
+  el("muat-ulang").addEventListener("click", muat);
+  muat();
+})();
+</script>
+</body>
+</html>
