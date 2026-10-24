@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Alur Paspor Beasiswa</title>
-<meta name="description" content="Pantauan basis data Paspor Beasiswa: penemuan, riset tautan resmi, pemantauan halaman, ekstraksi berbukti, QC kelayakan Indonesia, sampai desain dan terbit.">
+<title>Alur FYGO</title>
+<meta name="description" content="Pantauan basis data FYGO: penemuan, riset tautan resmi, pemantauan halaman, ekstraksi berbukti, QC kelayakan Indonesia, sampai desain dan terbit.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
   :root {
     --bg: #FFFFFF; --ink: #101828; --ink-2: #667085; --ink-3: #A4ADBA; --rule: #ECEAE3; --rule-2: #D5D3CB;
@@ -172,7 +173,7 @@
 <div class="wrap">
   <header class="kepala">
     <div>
-      <div class="merek">paspor beasiswa<i>.</i><small>Basis data beasiswa</small></div>
+      <div class="merek">FYGO<small>Basis data beasiswa</small></div>
       <h1>Alur beasiswa, dari penemuan sampai terbit</h1>
     </div>
     <div class="meta"><span id="dimuat">memuat…</span><a class="utama" href="https://docs.google.com/spreadsheets/d/1Y2gUiDLCtAmLNHjMZv-D6yh9f6BvADZLKvkoH5r8I3E/edit" target="_blank" rel="noopener" style="text-decoration:none">Buka Google Sheet ↗</a><button id="unduh" type="button" class="ghost">Unduh Excel</button><button id="muat-ulang" type="button" class="ghost">Muat ulang</button></div>
@@ -214,7 +215,7 @@
 
   <section class="lembar" id="p-qc" role="tabpanel" hidden>
     <h2 id="j-qc">Basis data dan QC</h2>
-    <p class="lead">28 kolom Excel Paspor Beasiswa diisi dari halaman resmi, tiap kolom fakta membawa kutipan bukti. Kolom yang halaman resmi tidak sebut diisi dari Excel benih dan ditandai belum terverifikasi. Klik nama untuk melihat rinciannya.</p>
+    <p class="lead">28 kolom Excel FYGO diisi dari halaman resmi, tiap kolom fakta membawa kutipan bukti. Kolom yang halaman resmi tidak sebut diisi dari Excel benih dan ditandai belum terverifikasi. Klik nama untuk melihat rinciannya.</p>
     <div class="kartu-set" id="kartu-qc"></div>
     <div class="blok">
       <div class="alat">
@@ -248,7 +249,7 @@
 
   <section class="lembar" id="p-desain" role="tabpanel" hidden>
     <h2 id="j-desain">Desain</h2>
-    <p class="lead">Kiriman Instagram Paspor Beasiswa yang dirakit dari basis data: SCHOLARSHIP RADAR (carousel lima slide) untuk beasiswa yang lolos QC dan sedang buka, DEADLINE WATCH (post tunggal) untuk deadline 14 hari ke depan. Klik untuk melihat semua slide dan caption.</p>
+    <p class="lead">Kiriman Instagram FYGO yang dirakit dari basis data: SCHOLARSHIP RADAR (carousel lima slide) untuk beasiswa yang lolos QC dan sedang buka, DEADLINE WATCH (post tunggal) untuk deadline 14 hari ke depan. Klik untuk melihat semua slide dan caption.</p>
     <div class="blok">
       <div class="galeri" id="galeri"><div class="state">memuat…</div></div>
     </div>
@@ -269,10 +270,10 @@
 
   <section class="lembar" id="p-terbit" role="tabpanel" hidden>
     <h2 id="j-terbit">Terbit</h2>
-    <p class="kosong-lembar">Gerbang WhatsApp dan Postiz belum tersambung untuk Paspor Beasiswa.</p>
+    <p class="kosong-lembar">Gerbang WhatsApp dan Postiz belum tersambung untuk FYGO.</p>
   </section>
 
-  <footer>Dibaca langsung dari basis data Paspor Beasiswa lewat kunci publik baca-saja. Angka di tabel berasal dari halaman resmi penyelenggara dengan kutipan bukti; yang bertanda Excel belum diverifikasi. Status Open, Open Soon, Closed, dan TBC dihitung tiap hari dari deadline.</footer>
+  <footer>Dibaca langsung dari basis data FYGO lewat kunci publik baca-saja. Angka di tabel berasal dari halaman resmi penyelenggara dengan kutipan bukti; yang bertanda Excel belum diverifikasi. Status Open, Open Soon, Closed, dan TBC dihitung tiap hari dari deadline.</footer>
 </div>
 
 <script>
@@ -305,8 +306,26 @@
   function fmtWib(s) { if (!s) return "–"; var m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/); return m ? m[3] + "/" + m[2] + " " + m[4] + "." + m[5] : s; }
   function fmtTgl(s) { var m = String(s || "").match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? m[3] + "/" + m[2] + "/" + m[1] : (s || "–"); }
   function hari(s) { if (!s) return null; var d = new Date(s + "T00:00:00+07:00"); return Math.round((d - new Date()) / 86400000); }
+  // Tabel lengkap (gl_ekspor_baris) cuma untuk admin sejak sql/007, 24 Oktober
+  // 2026: produk FYGO berbayar. Admin masuk lewat tautan email Supabase, view
+  // lain tetap dibaca dengan kunci publik.
+  var SB = window.supabase.createClient(URL_.replace("/rest/v1/", ""), KEY, { auth: { persistSession: true, detectSessionInUrl: true, flowType: "pkce" } });
+  var TOKEN = KEY, SESI = null;
+  var SIAP = SB.auth.getSession().then(function (r) { SESI = r.data.session; if (SESI) TOKEN = SESI.access_token; });
+  function formAdmin() {
+    return '<div style="padding: 24px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center"><span>Tabel lengkap hanya untuk admin. Masuk dengan email admin:</span><input type="email" id="email-admin" placeholder="email admin" style="padding: 8px 10px; border: 1px solid #ccc; border-radius: 8px; min-width: 240px"><button type="button" id="kirim-admin" style="padding: 8px 14px; border-radius: 8px; border: 0; background: #2563FF; color: #fff; cursor: pointer">Kirim tautan masuk</button><span id="pesan-admin"></span></div>';
+  }
+  function pasangFormAdmin() {
+    var b = el("kirim-admin"); if (!b) return;
+    b.addEventListener("click", function () {
+      var email = el("email-admin").value.trim(); if (!email) return;
+      SB.auth.signInWithOtp({ email: email, options: { emailRedirectTo: location.origin + location.pathname } }).then(function (r) {
+        el("pesan-admin").textContent = r.error ? "Gagal: " + r.error.message : "Tautan dikirim, buka dari perangkat ini.";
+      });
+    });
+  }
   function ambil(path) {
-    return fetch(URL_ + path, { headers: { apikey: KEY, Authorization: "Bearer " + KEY } }).then(function (r) {
+    return SIAP.then(function () { return fetch(URL_ + path, { headers: { apikey: KEY, Authorization: "Bearer " + TOKEN } }); }).then(function (r) {
       if (!r.ok) { return r.text().then(function (t) { throw new Error("HTTP " + r.status + " " + t.slice(0, 160)); }); }
       return r.json();
     });
@@ -532,6 +551,8 @@
     ambil("gl_konten_terbaru?select=*&limit=120").then(gambarGaleri).catch(function (e) { el("galeri").innerHTML = '<div class="state err">' + esc(pesanGalat(e, "gl_konten_terbaru").replace("sql/003_gl_halaman_status.sql", "sql/004_gl_konten.sql")) + "</div>"; });
     ambil("gl_log_terbaru?select=*").then(gambarLog).catch(function (e) { el("t-log").innerHTML = '<tr><td colspan="7" class="state err">' + esc(pesanGalat(e, "gl_log_terbaru")) + "</td></tr>"; });
     ambil("gl_ekspor_baris?select=*&limit=2000").then(function (rows) {
+      if (!rows.length && !SESI) { el("t-qc").innerHTML = '<tr><td colspan="10">' + formAdmin() + "</td></tr>"; pasangFormAdmin(); return; }
+      if (!rows.length) { el("t-qc").innerHTML = '<tr><td colspan="10" class="state err">Akun ' + esc(SESI.user.email) + ' belum terdaftar sebagai admin (tabel gl_admin, sql/007).</td></tr>'; return; }
       // yang sudah lolos di atas, lalu perlu cek, lalu sisanya, supaya baris yang berguna tidak tenggelam
       var urut = { terbit: 0, lolos: 1, perlu_cek: 2, ditolak: 3, impor: 4 };
       rows.sort(function (a, b) { return (urut[a.status_qc] - urut[b.status_qc]) || String(a.negara).localeCompare(String(b.negara)) || String(a.nama).localeCompare(String(b.nama)); });
