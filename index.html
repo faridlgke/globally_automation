@@ -176,7 +176,7 @@
       <div class="merek">FYGO<small>Basis data beasiswa</small></div>
       <h1>Alur beasiswa, dari penemuan sampai terbit</h1>
     </div>
-    <div class="meta"><span id="dimuat">memuat…</span><a class="utama" href="https://docs.google.com/spreadsheets/d/1Y2gUiDLCtAmLNHjMZv-D6yh9f6BvADZLKvkoH5r8I3E/edit" target="_blank" rel="noopener" style="text-decoration:none">Buka Google Sheet ↗</a><button id="unduh" type="button" class="ghost">Unduh Excel</button><button id="muat-ulang" type="button" class="ghost">Muat ulang</button></div>
+    <div class="meta"><span id="dimuat">memuat…</span><a class="utama" href="https://docs.google.com/spreadsheets/d/1Y2gUiDLCtAmLNHjMZv-D6yh9f6BvADZLKvkoH5r8I3E/edit" target="_blank" rel="noopener" style="text-decoration:none">Buka Google Sheet ↗</a><button id="unduh" type="button" class="ghost">Unduh Excel</button><button id="muat-ulang" type="button" class="ghost">Muat ulang</button><button id="tombol-admin" type="button" class="ghost">Masuk admin</button></div>
   </header>
 
   <nav class="sungai" role="tablist" aria-label="Tahap">
@@ -561,6 +561,20 @@
     }).catch(function (e) { el("t-qc").innerHTML = '<tr><td colspan="10" class="state err">' + esc(pesanGalat(e, "gl_ekspor_baris")) + "</td></tr>"; });
   }
   el("muat-ulang").addEventListener("click", muat);
+  // tombol admin di kepala: formulir masuknya ada di tab QC, di dalam tabel
+  SIAP.then(function () {
+    var t = el("tombol-admin");
+    if (SESI) {
+      t.textContent = "Keluar admin (" + SESI.user.email + ")";
+      t.addEventListener("click", function () { SB.auth.signOut().then(function () { location.reload(); }); });
+    } else {
+      t.addEventListener("click", function () {
+        pilihTab("qc", true);
+        var f = el("email-admin");
+        if (f) { f.scrollIntoView({ behavior: "smooth", block: "center" }); f.focus(); }
+      });
+    }
+  });
   muat();
 })();
 </script>
