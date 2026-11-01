@@ -176,7 +176,7 @@
       <div class="merek">FYGO<small>Basis data beasiswa</small></div>
       <h1>Alur beasiswa, dari penemuan sampai terbit</h1>
     </div>
-    <div class="meta"><span id="dimuat">memuat…</span><a class="utama" href="https://docs.google.com/spreadsheets/d/1Y2gUiDLCtAmLNHjMZv-D6yh9f6BvADZLKvkoH5r8I3E/edit" target="_blank" rel="noopener" style="text-decoration:none">Buka Google Sheet ↗</a><button id="unduh" type="button" class="ghost">Unduh Excel</button><button id="muat-ulang" type="button" class="ghost">Muat ulang</button><button id="tombol-admin" type="button" class="ghost">Masuk admin</button></div>
+    <div class="meta"><span id="dimuat">memuat…</span><a class="utama" href="https://docs.google.com/spreadsheets/d/1Y2gUiDLCtAmLNHjMZv-D6yh9f6BvADZLKvkoH5r8I3E/edit" target="_blank" rel="noopener" style="text-decoration:none">Buka Google Sheet ↗</a><button id="unduh" type="button" class="ghost">Unduh Excel</button><button id="muat-ulang" type="button" class="ghost">Muat ulang</button><button id="tombol-admin" type="button" class="ghost">Masuk admin</button><button id="keluar-web" type="button" class="ghost">Keluar</button></div>
   </header>
 
   <nav class="sungai" role="tablist" aria-label="Tahap">
@@ -578,5 +578,6 @@
   muat();
 })();
 </script>
+<script>document.getElementById("keluar-web").addEventListener("click",function(){fetch("/api/keluar",{method:"POST"}).finally(function(){location.replace("/login")})});</script>
 </body>
 </html>
