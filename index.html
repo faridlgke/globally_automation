@@ -396,10 +396,24 @@
   }
   function pasangFormAdmin() {
     var b = el("kirim-admin"); if (!b) return;
+    // Supabase menolak permintaan kedua dalam 60 detik, jadi tombol dikunci selama itu
+    var jam = null;
+    function kunci(detik) {
+      clearInterval(jam);
+      b.disabled = true;
+      jam = setInterval(function () {
+        detik--; b.textContent = detik > 0 ? "Kirim lagi dalam " + detik + " detik" : "Kirim tautan masuk";
+        if (detik <= 0) { clearInterval(jam); b.disabled = false; }
+      }, 1000);
+    }
     b.addEventListener("click", function () {
       var email = el("email-admin").value.trim(); if (!email) return;
+      b.disabled = true;
       SB.auth.signInWithOtp({ email: email, options: { emailRedirectTo: location.origin + location.pathname } }).then(function (r) {
-        el("pesan-admin").textContent = r.error ? "Gagal: " + r.error.message : "Tautan dikirim, buka dari perangkat ini.";
+        var m = r.error && /after ([0-9]+) seconds/.exec(r.error.message || "");
+        if (m) { el("pesan-admin").textContent = "Tautan sudah dikirim barusan. Cek inbox dan folder Spam, atau tunggu " + m[1] + " detik untuk kirim ulang."; kunci(+m[1]); return; }
+        el("pesan-admin").textContent = r.error ? "Gagal: " + r.error.message : "Tautan dikirim ke " + email + ". Cek inbox dan folder Spam, lalu buka dari perangkat ini.";
+        if (r.error) b.disabled = false; else kunci(60);
       });
     });
   }
