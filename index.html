@@ -73,10 +73,11 @@
   .garis span { position: absolute; top: 7px; left: 0; height: 2px; border-radius: 2px; }
   .garis .mati { right: 0; background: var(--rule-2); }
   .garis .hidup { width: calc(var(--hidup, 0) * 100%); background: var(--accent); }
-  .st { grid-row: 1 / span 4; display: grid; grid-template-rows: subgrid; justify-items: center; align-items: start; text-align: center; background: none; border: 0; padding: 10px 4px 12px; color: var(--ink); min-width: 0; position: relative; z-index: 1; border-radius: 12px; transition: background-color .15s ease; }
+  /* angka mengikuti lebar kolom tahapnya (cqi), supaya 1.464/1.509 tidak menempel ke tetangga */
+  .st { container-type: inline-size; grid-row: 1 / span 4; display: grid; grid-template-rows: subgrid; justify-items: center; align-items: start; text-align: center; background: none; border: 0; padding: 10px 4px 12px; color: var(--ink); min-width: 0; position: relative; z-index: 1; border-radius: 12px; transition: background-color .15s ease; }
   .st:nth-of-type(1) { grid-column: 1; } .st:nth-of-type(2) { grid-column: 2; } .st:nth-of-type(3) { grid-column: 3; }
   .st:nth-of-type(4) { grid-column: 4; } .st:nth-of-type(5) { grid-column: 5; } .st:nth-of-type(6) { grid-column: 6; }
-  .st .ang { font-family: var(--judul); font-size: clamp(2rem, 3.4vw, 2.5rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1; align-self: end; padding-bottom: 8px; color: var(--ink); text-decoration: underline dotted var(--rule-2); text-decoration-thickness: 2px; text-underline-offset: 7px; }
+  .st .ang { font-family: var(--judul); font-size: clamp(1.4rem, 19.5cqi, 2.5rem); white-space: nowrap; font-weight: 800; letter-spacing: -0.03em; line-height: 1; align-self: end; padding-bottom: 8px; color: var(--ink); text-decoration: underline dotted var(--rule-2); text-decoration-thickness: 2px; text-underline-offset: 7px; }
   .st .ang small { font-size: 0.48em; font-weight: 600; color: var(--ink-3); letter-spacing: -0.01em; margin-left: 2px; }
   .st .nm { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; color: var(--ink-2); padding-bottom: 14px; }
   .st .titik { width: 14px; height: 14px; border-radius: 50%; background: var(--bg); border: 2px solid var(--rule-2); align-self: center; position: relative; }
@@ -101,7 +102,7 @@
     .garis, .st .titik { display: none; }
     .st, .st:nth-of-type(n) { grid-column: auto; grid-row: auto; grid-template-rows: auto auto auto; }
     .st .nm { padding-bottom: 0; } .st .ket { padding-top: 6px; }
-    .st .ang { font-size: 1.75rem; } .st .ang small { display: block; margin: 4px 0 0; font-size: .5em; }
+    .st .ang { font-size: clamp(1.3rem, 24cqi, 1.75rem); } .st .ang small { display: block; margin: 4px 0 0; font-size: .5em; }
   }
   @media (max-width: 420px) { .st .nm { letter-spacing: .06em; font-size: .66rem; } .st .ket { font-size: .72rem; } }
 
@@ -158,10 +159,16 @@
   .skor > .state { grid-column: 1 / -1; padding: 8px 0; }
   /* QC manusia (sql/013): tombol ACC dan STOP per baris, dialog feedback */
   .tim { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
-  .tim .ghost { padding: 3px 11px; font-size: .76rem; }
-  .tim .ghost.stop:hover { border-color: var(--bad); color: var(--bad); }
-  .tim .ghost.acc:hover { border-color: var(--ok); color: var(--ok); }
-  .tim .ulang { background: none; border: 0; color: var(--ink-2); font-size: .74rem; text-decoration: underline; padding: 0 2px; }
+  /* ACC hijau, STOP merah: dibedakan warna dan isian, bukan cuma teks */
+  .tim .ghost { padding: 4px 12px; font-size: .76rem; font-weight: 700; letter-spacing: .02em; }
+  .tim .ghost.acc { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 60%, transparent); background: color-mix(in srgb, var(--ok) 12%, transparent); }
+  .tim .ghost.acc:hover { background: var(--ok); border-color: var(--ok); color: var(--bg); }
+  .tim .ghost.stop { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 60%, transparent); background: color-mix(in srgb, var(--bad) 12%, transparent); }
+  .tim .ghost.stop:hover { background: var(--bad); border-color: var(--bad); color: var(--bg); }
+  .tim .ulang { background: none; border: 0; font-size: .74rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; padding: 0 2px; }
+  .tim .ulang[data-stop] { color: var(--bad); }
+  .tim .ulang[data-acc] { color: var(--ok); }
+  #stop-kirim { background: var(--bad); border-color: var(--bad); color: #fff; }
   tr.dihentikan td { opacity: .6; }
   tr.dihentikan td:last-child { opacity: 1; }
   dialog.lihat.kecil { width: min(560px, calc(100vw - 32px)); }
