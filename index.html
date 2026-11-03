@@ -156,6 +156,19 @@
   @media (max-width: 900px) { .skor { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   @media (max-width: 480px) { .skor { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .skor .k { padding: 10px 12px; } .skor .k b { font-size: 1.5rem; } }
   .skor > .state { grid-column: 1 / -1; padding: 8px 0; }
+  /* QC manusia (sql/013): tombol ACC dan STOP per baris, dialog feedback */
+  .tim { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
+  .tim .ghost { padding: 3px 11px; font-size: .76rem; }
+  .tim .ghost.stop:hover { border-color: var(--bad); color: var(--bad); }
+  .tim .ghost.acc:hover { border-color: var(--ok); color: var(--ok); }
+  .tim .ulang { background: none; border: 0; color: var(--ink-2); font-size: .74rem; text-decoration: underline; padding: 0 2px; }
+  tr.dihentikan td { opacity: .6; }
+  tr.dihentikan td:last-child { opacity: 1; }
+  dialog.lihat.kecil { width: min(560px, calc(100vw - 32px)); }
+  .form-stop { display: grid; gap: 14px; margin-top: 16px; }
+  .form-stop label { display: grid; gap: 6px; font-size: .82rem; font-weight: 600; color: var(--ink-2); }
+  .form-stop select, .form-stop input, .form-stop textarea { font: inherit; font-size: .92rem; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--rule-2); background: var(--bg); color: var(--ink); }
+  .form-stop textarea { min-height: 110px; resize: vertical; }
   /* tabel panjang dipotong 15 baris */
   .potong { display: flex; justify-content: space-between; align-items: center; gap: 10px 16px; flex-wrap: wrap; margin-top: 14px; color: var(--ink-2); font-size: 0.82rem; }
   dialog.lihat { border: 0; border-radius: 16px; padding: 24px 24px 28px; width: min(1040px, calc(100vw - 32px)); max-height: calc(100vh - 48px); background: var(--bg); color: var(--ink); box-shadow: 0 24px 80px rgba(10, 20, 35, 0.35); }
@@ -260,13 +273,39 @@
         <select id="f-layak"><option value="">Semua kelayakan</option><option value="layak">Layak</option><option value="perlu_cek">Perlu cek</option><option value="tidak">Tidak layak</option></select>
         <select id="f-negara"><option value="">Semua negara</option></select>
         <select id="f-jenjang"><option value="">Semua jenjang</option><option value="S1">S1</option><option value="S2">S2</option><option value="S3">S3</option><option value="POSTDOC">PostDoc</option></select>
+        <select id="f-tim" hidden><option value="">Semua cek tim</option><option value="belum">Belum dicek tim</option><option value="acc">ACC</option><option value="stop">STOP</option></select>
         <select id="f-buka"><option value="">Semua status</option><option value="Open">Open</option><option value="Open Soon">Open Soon</option><option value="Closed">Closed</option><option value="TBC">TBC</option></select>
         <input id="f-cari" type="search" placeholder="Cari nama atau penyelenggara…" aria-label="Cari">
       </div>
       <div id="admin-qc"></div>
       <div class="aksi"><span class="n" id="n-qc">–</span></div>
-      <div class="scroll"><table><thead><tr><th>Beasiswa</th><th>Negara</th><th>Jenjang</th><th>Deadline</th><th>Status</th><th>Layak ID</th><th>QC</th><th class="num">Bukti</th></tr></thead><tbody id="t-qc"><tr><td colspan="8" class="state">memuat…</td></tr></tbody></table></div>
+      <div class="scroll"><table><thead><tr><th>Beasiswa</th><th>Negara</th><th>Jenjang</th><th>Deadline</th><th>Status</th><th>Layak ID</th><th>QC</th><th class="num">Bukti</th><th>Cek tim</th></tr></thead><tbody id="t-qc"><tr><td colspan="9" class="state">memuat…</td></tr></tbody></table></div>
     </div>
+    <div class="blok" id="blok-catatan" hidden>
+      <h3>Catatan algoritma <span>feedback STOP, diolah jadi aturan cek kualitas dan contoh untuk model</span></h3>
+      <div class="scroll"><table><thead><tr><th>Waktu</th><th>Beasiswa</th><th>Bagian</th><th>Feedback</th><th>Oleh</th><th>Diolah</th></tr></thead><tbody id="t-catatan"><tr><td colspan="6" class="state">memuat…</td></tr></tbody></table></div>
+    </div>
+    <dialog class="lihat kecil" id="stop-d" aria-labelledby="stop-judul">
+      <div class="isi">
+        <button type="button" class="tutup-x" id="stop-tutup" aria-label="Tutup">×</button>
+        <h4 id="stop-judul">STOP beasiswa ini</h4>
+        <div class="sub" id="stop-sub"></div>
+        <form class="form-stop" id="stop-form">
+          <label>Bagian yang salah
+            <select id="stop-bagian" required>
+              <option value="kelayakan">Kelayakan orang Indonesia</option><option value="deadline">Deadline</option><option value="pendanaan">Pendanaan</option>
+              <option value="jenjang">Jenjang</option><option value="usia">Batas usia</option><option value="bidang">Bidang studi</option><option value="negara">Negara tujuan</option>
+              <option value="tautan">Tautan resmi</option><option value="bukan_beasiswa">Bukan beasiswa</option><option value="duplikat">Duplikat</option><option value="lainnya">Lainnya</option>
+            </select></label>
+          <label>Yang benar (opsional)
+            <input id="stop-nilai" maxlength="500" placeholder="contoh: Indonesia tidak termasuk, atau 15 Januari 2027"></label>
+          <label>Catatan untuk perbaikan sistem
+            <textarea id="stop-catatan" maxlength="2000" required placeholder="Apa yang salah dan di mana buktinya. Contoh: di halaman resmi tertulis Nationals of countries listed in Appendix 1, dan Indonesia tidak ada di daftarnya."></textarea></label>
+          <p class="redup" style="margin: 0; font-size: .82rem">Beasiswa langsung turun dari situs FYGO sampai diperbaiki dan di-ACC lagi.</p>
+          <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center; flex-wrap: wrap"><span id="stop-pesan" class="redup" style="font-size: .84rem"></span><button type="button" class="ghost" id="stop-batal">Batal</button><button type="submit" class="utama" id="stop-kirim">Kirim STOP</button></div>
+        </form>
+      </div>
+    </dialog>
     <dialog class="lihat" id="lihat" aria-labelledby="lihat-judul">
       <div class="isi">
         <button type="button" class="tutup-x" id="lihat-tutup" aria-label="Tutup">×</button>
@@ -366,6 +405,12 @@
   }
   function ambil(path) {
     return SIAP.then(function () { return fetch(URL_ + path, { headers: { apikey: KEY, Authorization: "Bearer " + TOKEN } }); }).then(function (r) {
+      if (!r.ok) { return r.text().then(function (t) { throw new Error("HTTP " + r.status + " " + t.slice(0, 160)); }); }
+      return r.json();
+    });
+  }
+  function kirim(fungsi, isi) {
+    return SIAP.then(function () { return fetch(URL_ + "rpc/" + fungsi, { method: "POST", headers: { apikey: KEY, Authorization: "Bearer " + TOKEN, "Content-Type": "application/json" }, body: JSON.stringify(isi) }); }).then(function (r) {
       if (!r.ok) { return r.text().then(function (t) { throw new Error("HTTP " + r.status + " " + t.slice(0, 160)); }); }
       return r.json();
     });
@@ -482,16 +527,19 @@
       if (negara && r.negara !== negara) return false;
       if (jenjang && (r.jenjang_kode || []).indexOf(jenjang) < 0) return false;
       if (buka && r.status_hitung !== buka) return false;
+      var tm = el("f-tim").value;
+      if (tm && (tm === "belum" ? !!r.qc_manusia : r.qc_manusia !== tm)) return false;
       if (cari && (String(r.nama) + " " + String(r.penyelenggara)).toLowerCase().indexOf(cari) < 0) return false;
       return true;
     });
   }
   function gambarQc() {
     var rows = saring(), tb = el("t-qc");
+    el("f-tim").hidden = PUBLIK;
     el("n-qc").textContent = rows.length + " dari " + DATA.length + " beasiswa" + (PUBLIK ? ", yang tampil di situs FYGO" : "");
-    if (!rows.length) { tb.innerHTML = '<tr><td colspan="8" class="state">tidak ada yang cocok</td></tr>'; potong(tb); return; }
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="9" class="state">tidak ada yang cocok</td></tr>'; potong(tb); return; }
     tb.innerHTML = rows.slice(0, 400).map(function (r) {
-      return '<tr><td class="judul"><button type="button" data-kode="' + esc(r.kode) + '">' + esc(r.nama) + '</button><span class="r"><span class="kode">' + esc(r.kode) + "</span>" + ((r.sumber_benih === "excel" || r.sumber_benih === "kiv" || r.manual) ? "" : '<span class="tag biru">baru · ' + esc(nSumber(r.sumber_benih)) + "</span> ") + esc((r.penyelenggara || "").length > 90 ? (r.penyelenggara || "").slice(0, 90).replace(/sS*$/, "") + "…" : (r.penyelenggara || "")) + '</span></td><td class="ringkas">' + esc(r.negara) + "</td><td>" + esc((r.jenjang_kode || []).join(", ") || "–") + '</td><td class="redup">' + (r.deadline_iso ? fmtTgl(r.deadline_iso) : (r.deadline_pola === "rolling" ? "rolling" : "–")) + "</td><td>" + status(ST_BUKA, r.status_hitung) + "</td><td>" + status(ST_LAYAK, r.kelayakan_id) + "</td><td>" + status(ST_QC, r.status_qc) + '</td><td class="num">' + (PUBLIK ? "–" : nBukti(r) + "/" + FAKTA.length) + "</td></tr>";
+      return '<tr' + (r.qc_manusia === "stop" ? ' class="dihentikan"' : "") + '><td class="judul"><button type="button" data-kode="' + esc(r.kode) + '">' + esc(r.nama) + '</button><span class="r"><span class="kode">' + esc(r.kode) + "</span>" + ((r.sumber_benih === "excel" || r.sumber_benih === "kiv" || r.manual) ? "" : '<span class="tag biru">baru · ' + esc(nSumber(r.sumber_benih)) + "</span> ") + esc((r.penyelenggara || "").length > 90 ? (r.penyelenggara || "").slice(0, 90).replace(/sS*$/, "") + "…" : (r.penyelenggara || "")) + '</span></td><td class="ringkas">' + esc(r.negara) + "</td><td>" + esc((r.jenjang_kode || []).join(", ") || "–") + '</td><td class="redup">' + (r.deadline_iso ? fmtTgl(r.deadline_iso) : (r.deadline_pola === "rolling" ? "rolling" : "–")) + "</td><td>" + status(ST_BUKA, r.status_hitung) + "</td><td>" + status(ST_LAYAK, r.kelayakan_id) + "</td><td>" + status(ST_QC, r.status_qc) + '</td><td class="num">' + (PUBLIK ? "–" : nBukti(r) + "/" + FAKTA.length) + "</td><td>" + tim(r) + "</td></tr>";
     }).join("");
     potong(tb);
     tb.querySelectorAll("button[data-kode]").forEach(function (b) { b.addEventListener("click", function () { bukaRinci(b.getAttribute("data-kode")); }); });
@@ -516,10 +564,61 @@
     var d = el("lihat"); if (!d.open) d.showModal();
     if (history.replaceState) history.replaceState(null, "", "#qc/" + kode);
   }
+  // QC manusia (sql/013). Semua baris langsung tampil di situs, STOP menurunkannya dan
+  // feedback-nya masuk catatan algoritma (gl_qc_manusia) untuk diolah jadi aturan.
+  var BAGIAN = { kelayakan: "kelayakan", deadline: "deadline", pendanaan: "pendanaan", jenjang: "jenjang", usia: "batas usia", bidang: "bidang", negara: "negara tujuan", tautan: "tautan resmi", bukan_beasiswa: "bukan beasiswa", duplikat: "duplikat", lainnya: "lainnya" };
+  function tim(r) {
+    if (PUBLIK) return '<span class="redup">–</span>';
+    var k = esc(r.kode);
+    if (r.qc_manusia === "acc") return '<span class="tim"><span class="s ok">ACC</span><button type="button" class="ulang" data-stop="' + k + '">STOP</button></span>';
+    if (r.qc_manusia === "stop") return '<span class="tim"><span class="s bad">STOP</span><button type="button" class="ulang" data-acc="' + k + '">ACC lagi</button></span>';
+    return '<span class="tim"><button type="button" class="ghost acc" data-acc="' + k + '">ACC</button><button type="button" class="ghost stop" data-stop="' + k + '">STOP</button></span>';
+  }
+  function setelPutus(kode, putusan) {
+    DATA.forEach(function (x) { if (x.kode === kode) x.qc_manusia = putusan; });
+    gambarQc(); muatCatatan();
+  }
+  el("t-qc").addEventListener("click", function (ev) {
+    var a = ev.target.closest("[data-acc]"), st = ev.target.closest("[data-stop]");
+    if (a) {
+      a.disabled = true;
+      kirim("gl_qc_putus", { p_kode: a.getAttribute("data-acc"), p_putusan: "acc" }).then(function () { setelPutus(a.getAttribute("data-acc"), "acc"); })
+        .catch(function (e) { a.disabled = false; a.title = e.message; a.textContent = "Gagal, coba lagi"; });
+    } else if (st) {
+      var kode = st.getAttribute("data-stop"), r = DATA.filter(function (x) { return x.kode === kode; })[0] || {};
+      el("stop-form").setAttribute("data-kode", kode);
+      el("stop-sub").innerHTML = '<span class="kode">' + esc(kode) + "</span><span>" + esc(r.nama || "") + "</span>";
+      el("stop-nilai").value = ""; el("stop-catatan").value = ""; el("stop-pesan").textContent = ""; el("stop-kirim").disabled = false;
+      el("stop-d").showModal();
+    }
+  });
+  el("stop-form").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var kode = el("stop-form").getAttribute("data-kode"), cat = el("stop-catatan").value.trim();
+    if (cat.length < 5) { el("stop-pesan").textContent = "Tulis catatannya dulu, minimal satu kalimat."; return; }
+    el("stop-kirim").disabled = true; el("stop-pesan").textContent = "Mengirim…";
+    kirim("gl_qc_putus", { p_kode: kode, p_putusan: "stop", p_bagian: el("stop-bagian").value, p_nilai_benar: el("stop-nilai").value, p_catatan: cat })
+      .then(function () { el("stop-d").close(); setelPutus(kode, "stop"); })
+      .catch(function (e) { el("stop-kirim").disabled = false; el("stop-pesan").textContent = "Gagal: " + e.message; });
+  });
+  ["stop-tutup", "stop-batal"].forEach(function (id) { el(id).addEventListener("click", function () { el("stop-d").close(); }); });
+  el("stop-d").addEventListener("click", function (ev) { if (ev.target === el("stop-d")) el("stop-d").close(); });
+  function muatCatatan() {
+    if (PUBLIK || !SESI) return;
+    el("blok-catatan").hidden = false;
+    ambil("gl_qc_catatan?select=*&putusan=eq.stop&limit=200").then(function (rows) {
+      var tb = el("t-catatan");
+      if (!rows.length) { tb.innerHTML = '<tr><td colspan="6" class="state">Belum ada feedback. Tekan STOP di baris yang salah untuk menulis yang pertama.</td></tr>'; potong(tb); return; }
+      tb.innerHTML = rows.map(function (r) {
+        return '<tr><td class="redup">' + fmtWib(r.at_wib) + '</td><td class="judul">' + esc(r.nama) + '<span class="r"><span class="kode">' + esc(r.kode) + "</span></span></td><td>" + esc(BAGIAN[r.bagian] || r.bagian || "–") + '</td><td class="lebar">' + esc(r.catatan || "") + (r.nilai_benar ? '<span class="r redup" style="display: block; margin-top: 4px">yang benar: ' + esc(r.nilai_benar) + "</span>" : "") + '</td><td class="redup">' + esc(r.oleh) + "</td><td>" + (r.diproses_wib ? '<span class="s ok">diolah ' + fmtWib(r.diproses_wib) + '</span><span class="r redup" style="display: block; white-space: normal; max-width: 260px">' + esc(r.tindakan || "") + "</span>" : '<span class="s warn">menunggu</span>') + "</td></tr>";
+      }).join("");
+      potong(tb);
+    }).catch(function (e) { el("t-catatan").innerHTML = '<tr><td colspan="6" class="state err">' + esc(pesanGalat(e, "gl_qc_catatan").replace("sql/003_gl_halaman_status.sql", "sql/013_gl_qc_manusia.sql")) + "</td></tr>"; });
+  }
   el("lihat-tutup").addEventListener("click", function () { el("lihat").close(); });
   el("lihat-tutup-2").addEventListener("click", function () { el("lihat").close(); });
   el("lihat").addEventListener("click", function (ev) { if (ev.target === el("lihat")) el("lihat").close(); });
-  ["f-asal", "f-qc", "f-layak", "f-negara", "f-jenjang", "f-buka"].forEach(function (id) { el(id).addEventListener("change", gambarQc); });
+  ["f-asal", "f-qc", "f-layak", "f-negara", "f-jenjang", "f-buka", "f-tim"].forEach(function (id) { el(id).addEventListener("change", gambarQc); });
   var cariTimer; el("f-cari").addEventListener("input", function () { clearTimeout(cariTimer); cariTimer = setTimeout(gambarQc, 250); });
 
   function gambarDeadline() {
@@ -628,7 +727,7 @@
       // yang sudah lolos di atas, lalu perlu cek, lalu sisanya, supaya baris yang berguna tidak tenggelam
       var urut = { terbit: 0, lolos: 1, perlu_cek: 2, ditolak: 3, impor: 4 };
       rows.sort(function (a, b) { return (urut[a.status_qc] - urut[b.status_qc]) || String(a.negara).localeCompare(String(b.negara)) || String(a.nama).localeCompare(String(b.nama)); });
-      PUBLIK = false; el("admin-qc").innerHTML = ""; DATA = rows; isiNegara(); gambarQc(); gambarDeadline();
+      PUBLIK = false; el("admin-qc").innerHTML = ""; DATA = rows; isiNegara(); gambarQc(); gambarDeadline(); muatCatatan();
       var m = (location.hash || "").match(/^#qc\/(GL[A-Z0-9]{4})$/); if (m) { pilihTab("qc", false); bukaRinci(m[1]); }
     }).catch(function (e) { el("t-qc").innerHTML = '<tr><td colspan="10" class="state err">' + esc(pesanGalat(e, "gl_ekspor_baris")) + "</td></tr>"; });
   }
