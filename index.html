@@ -158,6 +158,7 @@
   @media (max-width: 480px) { .skor { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .skor .k { padding: 10px 12px; } .skor .k b { font-size: 1.5rem; } }
   .skor > .state { grid-column: 1 / -1; padding: 8px 0; }
   /* QC manusia (sql/013): tombol ACC dan STOP per baris, dialog feedback */
+  a.sumber { display: inline-block; max-width: 96px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
   .tim { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
   /* ACC hijau, STOP merah: dibedakan warna dan isian, bukan cuma teks */
   .tim .ghost { padding: 4px 12px; font-size: .76rem; font-weight: 700; letter-spacing: .02em; }
@@ -286,7 +287,7 @@
       </div>
       <div id="admin-qc"></div>
       <div class="aksi"><span class="n" id="n-qc">–</span></div>
-      <div class="scroll"><table><thead><tr><th>Beasiswa</th><th>Negara</th><th>Jenjang</th><th>Deadline</th><th>Status</th><th>Layak ID</th><th>QC</th><th class="num">Bukti</th><th>Cek tim</th></tr></thead><tbody id="t-qc"><tr><td colspan="9" class="state">memuat…</td></tr></tbody></table></div>
+      <div class="scroll"><table><thead><tr><th>Beasiswa</th><th>Negara</th><th>Jenjang</th><th>Deadline</th><th>Status</th><th>Layak ID</th><th>QC</th><th class="num">Bukti</th><th>Sumber</th><th>Cek tim</th></tr></thead><tbody id="t-qc"><tr><td colspan="10" class="state">memuat…</td></tr></tbody></table></div>
     </div>
     <div class="blok" id="blok-catatan" hidden>
       <h3>Catatan algoritma <span>feedback STOP, diolah jadi aturan cek kualitas dan contoh untuk model</span></h3>
@@ -558,9 +559,9 @@
     var rows = saring(), tb = el("t-qc");
     el("f-tim").hidden = PUBLIK;
     el("n-qc").textContent = rows.length + " dari " + DATA.length + " beasiswa" + (PUBLIK ? ", yang tampil di situs FYGO" : "");
-    if (!rows.length) { tb.innerHTML = '<tr><td colspan="9" class="state">tidak ada yang cocok</td></tr>'; potong(tb); return; }
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="10" class="state">tidak ada yang cocok</td></tr>'; potong(tb); return; }
     tb.innerHTML = rows.slice(0, 400).map(function (r) {
-      return '<tr' + (r.qc_manusia === "stop" ? ' class="dihentikan"' : "") + '><td class="judul"><button type="button" data-kode="' + esc(r.kode) + '">' + esc(r.nama) + '</button><span class="r"><span class="kode">' + esc(r.kode) + "</span>" + ((r.sumber_benih === "excel" || r.sumber_benih === "kiv" || r.manual) ? "" : '<span class="tag biru">baru · ' + esc(nSumber(r.sumber_benih)) + "</span> ") + esc((r.penyelenggara || "").length > 90 ? (r.penyelenggara || "").slice(0, 90).replace(/sS*$/, "") + "…" : (r.penyelenggara || "")) + '</span></td><td class="ringkas">' + esc(r.negara) + "</td><td>" + esc((r.jenjang_kode || []).join(", ") || "–") + '</td><td class="redup">' + (r.deadline_iso ? fmtTgl(r.deadline_iso) : (r.deadline_pola === "rolling" ? "rolling" : "–")) + "</td><td>" + status(ST_BUKA, r.status_hitung) + "</td><td>" + status(ST_LAYAK, r.kelayakan_id) + "</td><td>" + status(ST_QC, r.status_qc) + '</td><td class="num">' + (PUBLIK ? "–" : nBukti(r) + "/" + FAKTA.length) + "</td><td>" + tim(r) + "</td></tr>";
+      return '<tr' + (r.qc_manusia === "stop" ? ' class="dihentikan"' : "") + '><td class="judul"><button type="button" data-kode="' + esc(r.kode) + '">' + esc(r.nama) + '</button><span class="r"><span class="kode">' + esc(r.kode) + "</span>" + ((r.sumber_benih === "excel" || r.sumber_benih === "kiv" || r.manual) ? "" : '<span class="tag biru">baru · ' + esc(nSumber(r.sumber_benih)) + "</span> ") + esc((r.penyelenggara || "").length > 90 ? (r.penyelenggara || "").slice(0, 90).replace(/sS*$/, "") + "…" : (r.penyelenggara || "")) + '</span></td><td class="ringkas">' + esc(r.negara) + "</td><td>" + esc((r.jenjang_kode || []).join(", ") || "–") + '</td><td class="redup">' + (r.deadline_iso ? fmtTgl(r.deadline_iso) : (r.deadline_pola === "rolling" ? "rolling" : "–")) + "</td><td>" + status(ST_BUKA, r.status_hitung) + "</td><td>" + status(ST_LAYAK, r.kelayakan_id) + "</td><td>" + status(ST_QC, r.status_qc) + '</td><td class="num">' + (PUBLIK ? "–" : nBukti(r) + "/" + FAKTA.length) + "</td><td>" + sumber(r) + "</td><td>" + tim(r) + "</td></tr>";
     }).join("");
     potong(tb);
     tb.querySelectorAll("button[data-kode]").forEach(function (b) { b.addEventListener("click", function () { bukaRinci(b.getAttribute("data-kode")); }); });
@@ -574,7 +575,7 @@
     el("lihat-sub").innerHTML = '<span class="kode">' + esc(r.kode) + "</span><span>" + esc(r.penyelenggara) + "</span><span>" + esc(r.negara) + "</span>" + status(ST_BUKA, r.status_hitung) + status(ST_LAYAK, r.kelayakan_id) + status(ST_QC, r.status_qc) + (r.tautan_resmi ? '<a class="tautan" href="' + esc(r.tautan_resmi) + '" target="_blank" rel="noopener">halaman resmi ↗</a>' : "") + "<span>ekstraksi " + fmtWib(r.ekstrak_wib) + "</span>";
     var cat = (r.catatan_qc || []);
     el("lihat-catatan").innerHTML = (r.kelayakan_alasan || cat.length) ? '<div class="catatan">' + (r.kelayakan_alasan ? "<b>Kelayakan:</b> " + esc(r.kelayakan_alasan) + (b.kelayakan ? ' <span class="redup">“' + esc(b.kelayakan) + "”</span>" : "") : "") + (cat.length ? "<ul>" + cat.map(function (c) { return "<li>" + esc(c) + "</li>"; }).join("") + "</ul>" : "") + "</div>" : "";
-    el("lihat-rinci").innerHTML = KOLOM.map(function (k) {
+    el("lihat-rinci").innerHTML = KOLOM.filter(function (k) { return k[1] !== "kesulitan"; }).map(function (k) {
       var v = k[1] === "kesulitan" ? bintang(r.kesulitan) : k[1] === "status" ? (r.status_hitung || r.status) : r[k[1]];
       var kosong = !v || /^Not stated/.test(String(v));
       var bk = b[k[1]];
@@ -588,6 +589,13 @@
   // QC manusia (sql/013). Semua baris langsung tampil di situs, STOP menurunkannya dan
   // feedback-nya masuk catatan algoritma (gl_qc_manusia) untuk diolah jadi aturan.
   var BAGIAN = { kelayakan: "kelayakan", deadline: "deadline", pendanaan: "pendanaan", jenjang: "jenjang", usia: "batas usia", bidang: "bidang", negara: "negara tujuan", tautan: "tautan resmi", bukan_beasiswa: "bukan beasiswa", duplikat: "duplikat", lainnya: "lainnya" };
+  // tautan resmi hanya ada di tabel admin, versi publik menunjuk halaman detail situs FYGO
+  function sumber(r) {
+    var u = r.tautan_resmi || (PUBLIK ? "https://fygo.vercel.app/beasiswa.html?kode=" + encodeURIComponent(r.kode) : "");
+    if (!u || !/^https?:/i.test(u)) return '<span class="redup">–</span>';
+    var dom = ""; try { dom = new URL(u).hostname.replace(/^www\./, ""); } catch (e) {}
+    return '<a class="tautan sumber" href="' + esc(u) + '" target="_blank" rel="noopener" title="' + esc(u) + '">' + esc(PUBLIK ? "detail" : dom) + "</a> ↗";
+  }
   function tim(r) {
     if (PUBLIK) return '<span class="redup">–</span>';
     var k = esc(r.kode);
