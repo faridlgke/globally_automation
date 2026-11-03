@@ -217,7 +217,7 @@
     <button class="st" role="tab" data-tab="halaman"><span class="ang" id="c2">–</span><span class="nm">Halaman resmi</span><span class="titik"></span><span class="ket" id="k2">pemantauan</span></button>
     <button class="st" role="tab" data-tab="qc"><span class="ang" id="c3">–</span><span class="nm">QC</span><span class="titik"></span><span class="ket" id="k3">ekstraksi berbukti</span></button>
     <button class="st" role="tab" data-tab="deadline"><span class="ang" id="c4">–</span><span class="nm">Deadline</span><span class="titik"></span><span class="ket" id="k4">30 hari</span></button>
-    <button class="st belum" role="tab" data-tab="desain"><span class="ang" id="c5">–</span><span class="nm">Desain</span><span class="titik"></span><span class="ket" id="k5">belum hidup</span></button>
+    <button class="st" role="tab" data-tab="desain"><span class="ang" id="c5">–</span><span class="nm">Desain</span><span class="titik"></span><span class="ket" id="k5">belum hidup</span></button>
     <button class="st belum" role="tab" data-tab="terbit"><span class="ang" id="c6">–</span><span class="nm">Terbit</span><span class="titik"></span><span class="ket" id="k6">belum hidup</span></button>
   </nav>
 
@@ -263,6 +263,7 @@
         <select id="f-buka"><option value="">Semua status</option><option value="Open">Open</option><option value="Open Soon">Open Soon</option><option value="Closed">Closed</option><option value="TBC">TBC</option></select>
         <input id="f-cari" type="search" placeholder="Cari nama atau penyelenggara…" aria-label="Cari">
       </div>
+      <div id="admin-qc"></div>
       <div class="aksi"><span class="n" id="n-qc">–</span></div>
       <div class="scroll"><table><thead><tr><th>Beasiswa</th><th>Negara</th><th>Jenjang</th><th>Deadline</th><th>Status</th><th>Layak ID</th><th>QC</th><th class="num">Bukti</th></tr></thead><tbody id="t-qc"><tr><td colspan="8" class="state">memuat…</td></tr></tbody></table></div>
     </div>
@@ -487,15 +488,16 @@
   }
   function gambarQc() {
     var rows = saring(), tb = el("t-qc");
-    el("n-qc").textContent = rows.length + " dari " + DATA.length + " beasiswa";
+    el("n-qc").textContent = rows.length + " dari " + DATA.length + " beasiswa" + (PUBLIK ? ", yang tampil di situs FYGO" : "");
     if (!rows.length) { tb.innerHTML = '<tr><td colspan="8" class="state">tidak ada yang cocok</td></tr>'; potong(tb); return; }
     tb.innerHTML = rows.slice(0, 400).map(function (r) {
-      return '<tr><td class="judul"><button type="button" data-kode="' + esc(r.kode) + '">' + esc(r.nama) + '</button><span class="r"><span class="kode">' + esc(r.kode) + "</span>" + ((r.sumber_benih === "excel" || r.sumber_benih === "kiv" || r.manual) ? "" : '<span class="tag biru">baru · ' + esc(nSumber(r.sumber_benih)) + "</span> ") + esc((r.penyelenggara || "").length > 90 ? (r.penyelenggara || "").slice(0, 90).replace(/sS*$/, "") + "…" : (r.penyelenggara || "")) + '</span></td><td class="ringkas">' + esc(r.negara) + "</td><td>" + esc((r.jenjang_kode || []).join(", ") || "–") + '</td><td class="redup">' + (r.deadline_iso ? fmtTgl(r.deadline_iso) : (r.deadline_pola === "rolling" ? "rolling" : "–")) + "</td><td>" + status(ST_BUKA, r.status_hitung) + "</td><td>" + status(ST_LAYAK, r.kelayakan_id) + "</td><td>" + status(ST_QC, r.status_qc) + '</td><td class="num">' + nBukti(r) + "/" + FAKTA.length + "</td></tr>";
+      return '<tr><td class="judul"><button type="button" data-kode="' + esc(r.kode) + '">' + esc(r.nama) + '</button><span class="r"><span class="kode">' + esc(r.kode) + "</span>" + ((r.sumber_benih === "excel" || r.sumber_benih === "kiv" || r.manual) ? "" : '<span class="tag biru">baru · ' + esc(nSumber(r.sumber_benih)) + "</span> ") + esc((r.penyelenggara || "").length > 90 ? (r.penyelenggara || "").slice(0, 90).replace(/sS*$/, "") + "…" : (r.penyelenggara || "")) + '</span></td><td class="ringkas">' + esc(r.negara) + "</td><td>" + esc((r.jenjang_kode || []).join(", ") || "–") + '</td><td class="redup">' + (r.deadline_iso ? fmtTgl(r.deadline_iso) : (r.deadline_pola === "rolling" ? "rolling" : "–")) + "</td><td>" + status(ST_BUKA, r.status_hitung) + "</td><td>" + status(ST_LAYAK, r.kelayakan_id) + "</td><td>" + status(ST_QC, r.status_qc) + '</td><td class="num">' + (PUBLIK ? "–" : nBukti(r) + "/" + FAKTA.length) + "</td></tr>";
     }).join("");
     potong(tb);
     tb.querySelectorAll("button[data-kode]").forEach(function (b) { b.addEventListener("click", function () { bukaRinci(b.getAttribute("data-kode")); }); });
   }
   function bukaRinci(kode) {
+    if (PUBLIK) { window.open("https://fygo.vercel.app/beasiswa.html?kode=" + encodeURIComponent(kode), "_blank", "noopener"); return; }
     var r = DATA.filter(function (x) { return x.kode === kode; })[0];
     if (!r) return;
     var b = r.bukti || {};
@@ -547,7 +549,7 @@
     KONTEN = rows;
     var g = el("galeri");
     el("c5").textContent = rows.filter(function (r) { return r.gambar_path; }).length;
-    el("k5").innerHTML = '<span class="dot"></span>belum hidup' + (rows.length ? ", " + rows.length + " contoh" : "");
+    el("k5").innerHTML = rows.length ? '<span class="dot ok"></span>' + rows.length + " konten, belum terbit" : '<span class="dot"></span>belum ada konten';
     el("j-desain").textContent = "belum hidup, sosmed FYGO ditahan" + (rows.length ? ", " + rows.length + " contoh" : "");
     if (!rows.length) { g.innerHTML = '<div class="state">belum ada konten</div>'; return; }
     g.innerHTML = rows.map(function (r) {
@@ -599,6 +601,20 @@
   }
   el("unduh").addEventListener("click", unduhExcel);
 
+  var PUBLIK = false;
+  // Tanpa admin, QC dan Deadline dibaca dari fungsi publik gl_fygo_data (sql/006) yang dipakai
+  // situs FYGO: baris yang tampil di situs, tanpa kutipan bukti. Tabel lengkap tetap untuk admin.
+  function muatPublik() {
+    ambil("rpc/gl_fygo_data").then(function (r) {
+      PUBLIK = true;
+      var urut = { terbit: 0, lolos: 1, perlu_cek: 2 };
+      DATA = (r.data || []).sort(function (a, b) { return ((urut[a.status_qc] || 3) - (urut[b.status_qc] || 3)) || String(a.negara).localeCompare(String(b.negara)) || String(a.nama).localeCompare(String(b.nama)); });
+      isiNegara(); gambarQc(); gambarDeadline();
+    }).catch(function (e) {
+      el("t-qc").innerHTML = '<tr><td colspan="8" class="state err">' + esc(pesanGalat(e, "gl_fygo_data")) + "</td></tr>";
+      el("t-deadline").innerHTML = '<tr><td colspan="8" class="state err">' + esc(pesanGalat(e, "gl_fygo_data")) + "</td></tr>";
+    });
+  }
   function muat() {
     el("dimuat").textContent = "memuat…";
     ambil("gl_corong?select=*").then(function (rows) { if (rows[0]) isiSungai(rows[0]); }).catch(function (e) { el("dimuat").textContent = pesanGalat(e, "gl_corong"); ["kartu-kandidat", "kartu-halaman", "kartu-qc"].forEach(function (id) { el(id).innerHTML = '<div class="state err">Angka belum bisa dimuat, coba Muat ulang.</div>'; }); });
@@ -607,12 +623,12 @@
     ambil("gl_konten_terbaru?select=*&limit=120").then(gambarGaleri).catch(function (e) { el("galeri").innerHTML = '<div class="state err">' + esc(pesanGalat(e, "gl_konten_terbaru").replace("sql/003_gl_halaman_status.sql", "sql/004_gl_konten.sql")) + "</div>"; });
     ambil("gl_log_terbaru?select=*").then(gambarLog).catch(function (e) { el("t-log").innerHTML = '<tr><td colspan="7" class="state err">' + esc(pesanGalat(e, "gl_log_terbaru")) + "</td></tr>"; });
     ambil("gl_ekspor_baris?select=*&limit=2000").then(function (rows) {
-      if (!rows.length && !SESI) { el("t-qc").innerHTML = '<tr><td colspan="10">' + formAdmin() + "</td></tr>"; pasangFormAdmin(); return; }
-      if (!rows.length) { el("t-qc").innerHTML = '<tr><td colspan="10" class="state err">Akun ' + esc(SESI.user.email) + ' belum terdaftar sebagai admin (tabel gl_admin, sql/007).</td></tr>'; return; }
+      if (!rows.length && !SESI) { el("admin-qc").innerHTML = formAdmin(); pasangFormAdmin(); muatPublik(); return; }
+      if (!rows.length) { el("admin-qc").innerHTML = '<p class="state err" style="padding: 0 0 14px">Akun ' + esc(SESI.user.email) + ' belum terdaftar sebagai admin (tabel gl_admin, sql/007). Tabel di bawah versi publik.</p>'; muatPublik(); return; }
       // yang sudah lolos di atas, lalu perlu cek, lalu sisanya, supaya baris yang berguna tidak tenggelam
       var urut = { terbit: 0, lolos: 1, perlu_cek: 2, ditolak: 3, impor: 4 };
       rows.sort(function (a, b) { return (urut[a.status_qc] - urut[b.status_qc]) || String(a.negara).localeCompare(String(b.negara)) || String(a.nama).localeCompare(String(b.nama)); });
-      DATA = rows; isiNegara(); gambarQc(); gambarDeadline();
+      PUBLIK = false; el("admin-qc").innerHTML = ""; DATA = rows; isiNegara(); gambarQc(); gambarDeadline();
       var m = (location.hash || "").match(/^#qc\/(GL[A-Z0-9]{4})$/); if (m) { pilihTab("qc", false); bukaRinci(m[1]); }
     }).catch(function (e) { el("t-qc").innerHTML = '<tr><td colspan="10" class="state err">' + esc(pesanGalat(e, "gl_ekspor_baris")) + "</td></tr>"; });
   }
