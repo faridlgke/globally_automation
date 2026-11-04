@@ -711,15 +711,17 @@
     if (navigator.clipboard) navigator.clipboard.writeText(t).then(function () { el("salin-caption").textContent = "Tersalin"; setTimeout(function () { el("salin-caption").textContent = "Salin caption"; }, 1500); });
   });
 
+  // kolom 4 Difficulty Rating keluar dari Excel sejak 4 November 2026, sama dengan Google Sheet
+  var KOLOM_EKSPOR = KOLOM.filter(function (k) { return k[1] !== "kesulitan"; });
   function unduhExcel() {
     if (!DATA.length) return;
     var tombol = el("unduh"); tombol.disabled = true;
     var rows = DATA.filter(function (r) { return ["lolos", "terbit", "perlu_cek"].indexOf(r.status_qc) >= 0; });
-    var sch = rows.map(function (r) { var o = {}; KOLOM.forEach(function (k) { o[k[0]] = k[1] === "kesulitan" ? bintang(r.kesulitan).replace(/–/, "") : k[1] === "status" ? (r.status_hitung || "") : (r[k[1]] || ""); }); return o; });
+    var sch = rows.map(function (r) { var o = {}; KOLOM_EKSPOR.forEach(function (k) { o[k[0]] = k[1] === "kesulitan" ? bintang(r.kesulitan).replace(/–/, "") : k[1] === "status" ? (r.status_hitung || "") : (r[k[1]] || ""); }); return o; });
     var qc = rows.map(function (r) { return { "Kode": r.kode, "Scholarship Name": r.nama, "Status QC": r.status_qc, "Eligible for Indonesians": r.kelayakan_id, "Reason": r.kelayakan_alasan, "Deadline (ISO)": r.deadline_iso, "Status computed": r.status_hitung, "Verified columns": nBukti(r) + "/" + FAKTA.length, "Columns from seed Excel, not yet verified": ((r.bukti || {})._dari_excel || []).join(", "), "QC notes": (r.catatan_qc || []).join("\n") }; });
     var wb = XLSX.utils.book_new();
-    var ws = XLSX.utils.json_to_sheet(sch, { header: KOLOM.map(function (k) { return k[0]; }) });
-    ws["!cols"] = KOLOM.map(function (k) { return { wch: k[0] === "Status" ? 11 : k[1] === "kesulitan" ? 47 : 60 }; });
+    var ws = XLSX.utils.json_to_sheet(sch, { header: KOLOM_EKSPOR.map(function (k) { return k[0]; }) });
+    ws["!cols"] = KOLOM_EKSPOR.map(function (k) { return { wch: k[0] === "Status" ? 11 : k[1] === "kesulitan" ? 47 : 60 }; });
     ws["!freeze"] = { xSplit: 0, ySplit: 1 };
     XLSX.utils.book_append_sheet(wb, ws, "Scholarship");
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(qc), "QC");
