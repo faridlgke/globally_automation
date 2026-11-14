@@ -238,18 +238,40 @@
   }
   /* ==== akhir tampilan HP ==== */
   /* tambah sumber manual (sql/020), dirapikan 14 Nov 2026: satu kotak, sisanya tersembunyi */
-  .tambah { max-width: 720px; }
-  .kotak-masuk { display: block; border: 1.5px dashed var(--rule-2); border-radius: 14px; padding: 6px; background: var(--panel); transition: border-color .15s; }
-  .kotak-masuk.seret-aktif, .kotak-masuk:focus-within { border-color: var(--accent); }
-  .kotak-masuk textarea { display: block; width: 100%; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: .95rem; padding: 10px 12px; resize: vertical; min-height: 96px; outline: none; }
-  .kotak-masuk .seret { display: block; padding: 4px 12px 8px; color: var(--ink-2); font-size: .82rem; }
-  .tautan-kecil { background: none; border: 0; padding: 0; color: var(--accent); font: inherit; font-size: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
-  .berkas-terpilih { margin-top: 10px; font-size: .86rem; color: var(--ink); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .judul-hal { font-family: var(--judul); font-size: 1.5rem; font-weight: 800; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .sub-hal { color: var(--ink-2); margin: 0 0 26px; }
+  .tambah-dua { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 40px; align-items: start; }
+  .tambah-kiri { max-width: 640px; }
+  .seg { display: inline-flex; flex-wrap: wrap; background: var(--panel-2); border-radius: 999px; padding: 4px; margin-bottom: 22px; }
+  .seg button { background: none; border: 0; border-radius: 999px; padding: 8px 16px; font-weight: 600; font-size: .9rem; color: var(--ink-2); }
+  .seg button[aria-checked="true"] { background: var(--bg); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .1); }
+  .label-isian { display: block; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); margin: 0 0 8px; }
+  .label-isian span { text-transform: none; letter-spacing: 0; font-weight: 500; }
+  #f-masuk textarea, #f-masuk #masuk-kode { display: block; width: 100%; font: inherit; font-size: .92rem; color: var(--ink); background: var(--bg); border: 1px solid var(--rule-2); border-radius: 10px; padding: 10px 12px; }
+  #f-masuk textarea { min-height: 130px; resize: vertical; }
+  #f-masuk textarea:focus, #masuk-kode:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
+  .petunjuk-isian { font-size: .82rem; color: var(--ink-2); margin: 8px 0 0; }
+  .pratinjau { list-style: none; margin: 14px 0 0; padding: 0; border: 1px solid var(--rule); border-radius: 10px; }
+  .pratinjau li { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-top: 1px solid var(--rule); font-size: .86rem; }
+  .pratinjau li:first-child { border-top: 0; }
+  .pratinjau .u { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pratinjau .u span { color: var(--ink-2); }
+  .ke-lama { margin-top: 22px; max-width: 440px; }
+  .kotak-masuk { display: block; border: 1.5px dashed var(--rule-2); border-radius: 14px; padding: 34px 20px; background: var(--panel); text-align: center; transition: border-color .15s; cursor: pointer; }
+  .kotak-masuk.seret-aktif { border-color: var(--accent); }
+  .kotak-masuk .seret { display: block; color: var(--ink); font-size: .92rem; line-height: 1.6; }
+  .kotak-masuk .seret .redup { font-size: .82rem; }
+  .kotak-masuk .tautan-kecil { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; cursor: pointer; }
+  .riwayat { border-left: 1px solid var(--rule); padding-left: 28px; }
+  .riwayat ul { list-style: none; margin: 0; padding: 0; }
+  .riwayat li { padding: 12px 0; border-bottom: 1px solid var(--rule); }
+  .riwayat .a { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+  .riwayat .u { font-weight: 600; font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .riwayat .k { margin: 3px 0 0; font-size: .8rem; color: var(--ink-2); }
+  .riwayat .k a { color: var(--ink); }
+  .riwayat .s { flex: none; }
   .berkas-terpilih .redup { color: var(--ink-2); }
-  .baris-kirim { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 12px; font-size: .84rem; }
-  .baris-kirim .utama { margin-left: auto; }
-  .baris-kirim input { font: inherit; font-size: .86rem; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--rule-2); background: var(--bg); color: var(--ink); width: 170px; text-transform: uppercase; }
-  .baris-kirim input::placeholder { text-transform: none; }
+  .baris-kirim { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 24px; font-size: .86rem; }
   .manual { margin-top: 22px; font-size: .86rem; }
   .manual summary { cursor: pointer; color: var(--ink-2); }
   .manual summary:hover { color: var(--ink); }
@@ -259,7 +281,9 @@
   .kecil-redup { color: var(--ink-2); font-size: .82rem; margin: 0; }
   .skor-bar { display: inline-block; width: 46px; height: 6px; border-radius: 3px; background: var(--rule-2); vertical-align: middle; margin-right: 6px; overflow: hidden; }
   .skor-bar i { display: block; height: 100%; background: var(--accent); }
-  @media (max-width: 760px) { .form-stop .baris2 { grid-template-columns: 1fr; } .baris-kirim .utama { margin-left: 0; } }
+  @media (max-width: 760px) { .form-stop .baris2 { grid-template-columns: 1fr; } }
+  #p-tambah [hidden] { display: none !important; }
+  @media (max-width: 1100px) { .tambah-dua { grid-template-columns: minmax(0, 1fr); } .riwayat { border-left: 0; padding-left: 0; } }
   /* sidebar 14 Nov 2026: menu Data dan Konten di kiri, isi di kanan; di HP jadi bilah atas */
   .sisi { position: fixed; inset: 0 auto 0 0; width: 228px; z-index: 20; display: flex; flex-direction: column; gap: 26px; padding: 22px 14px 18px; background: var(--panel); border-right: 1px solid var(--rule); overflow-y: auto; }
   .merek { display: flex; flex-direction: column; gap: 2px; padding: 0 10px; color: var(--ink); text-decoration: none; }
@@ -378,39 +402,51 @@
   </section>
 
   <section class="lembar" id="p-tambah" role="tabpanel" hidden>
-    <div class="blok tambah">
-      <h3>Tambah sumber beasiswa</h3>
-      <div id="tambah-kunci"></div>
-      <form id="f-masuk" hidden>
-        <label class="kotak-masuk" id="kotak-masuk">
-          <textarea id="masuk-isi" rows="4" placeholder="Tempel tautan di sini, satu per baris. Boleh halaman resmi atau artikel berita."></textarea>
-          <span class="seret">atau <button type="button" class="tautan-kecil" id="pilih-berkas">pilih berkas</button> PDF, Excel, atau CSV. Bisa juga diseret ke kotak ini.</span>
-          <input type="file" id="masuk-berkas" accept=".pdf,.xlsx,.xls,.csv" hidden>
-        </label>
-        <div class="berkas-terpilih" id="berkas-terpilih" hidden></div>
-        <div class="baris-kirim">
-          <button type="button" class="tautan-kecil" id="buka-kode">Untuk beasiswa yang sudah ada?</button>
-          <input id="masuk-kode" class="kode-isian" maxlength="6" placeholder="Kode, misal GL3A1Z" hidden>
-          <span class="kecil-redup" id="masuk-pesan"></span>
-          <button type="submit" class="utama" id="masuk-kirim">Kirim</button>
+    <h2 class="judul-hal">Tambah beasiswa</h2>
+    <p class="sub-hal">Pilih caranya. Robot mengambil halaman resmi dan mengisi kolomnya, diproses tiap 10 menit.</p>
+    <div id="tambah-kunci" hidden></div>
+    <div class="tambah-dua">
+      <div class="tambah-kiri">
+        <div class="seg" role="radiogroup" aria-label="Cara menambah">
+          <button type="button" role="radio" data-cara="tautan" aria-checked="true">Tautan</button>
+          <button type="button" role="radio" data-cara="berkas" aria-checked="false">Berkas PDF / Excel</button>
+          <button type="button" role="radio" data-cara="manual" aria-checked="false">Isi manual</button>
         </div>
-      </form>
-      <details class="manual" id="manual" hidden>
-        <summary>Tidak ada tautan? Isi manual</summary>
-        <form class="form-stop" id="f-form">
+        <form id="f-masuk">
+          <div data-panel="tautan">
+            <label class="label-isian" for="masuk-isi">Tautan beasiswa</label>
+            <textarea id="masuk-isi" rows="5" placeholder="https://www.daad.de/...&#10;https://www.chevening.org/..."></textarea>
+            <p class="petunjuk-isian">Satu tautan per baris. Artikel berita atau postingan juga boleh, robot mencari halaman resminya.</p>
+            <ul class="pratinjau" id="pratinjau" hidden></ul>
+          </div>
+          <div data-panel="berkas" hidden>
+            <label class="kotak-masuk" id="kotak-masuk">
+              <span class="seret"><b>Seret berkas ke sini</b> atau <button type="button" class="tautan-kecil" id="pilih-berkas">pilih berkas</button><br><span class="redup">PDF brosur beasiswa, atau Excel/CSV daftar beasiswa (kolom nama atau tautan). Maksimal 25 MB.</span></span>
+              <input type="file" id="masuk-berkas" accept=".pdf,.xlsx,.xls,.csv" hidden>
+            </label>
+            <div class="berkas-terpilih" id="berkas-terpilih" hidden></div>
+          </div>
+          <div class="ke-lama" id="ke-lama">
+            <label class="label-isian" for="masuk-kode">Tambahkan ke beasiswa yang sudah ada <span>(opsional)</span></label>
+            <input id="masuk-kode" list="daftar-beasiswa" placeholder="Cari nama atau kode, misal Chevening atau GL3A1Z" autocomplete="off">
+            <datalist id="daftar-beasiswa"></datalist>
+          </div>
+          <div class="baris-kirim"><button type="submit" class="utama" id="masuk-kirim">Kirim</button><span class="kecil-redup" id="masuk-pesan"></span></div>
+        </form>
+        <form class="form-stop" id="f-form" hidden>
           <label>Nama beasiswa<input id="fm-nama" maxlength="300" required></label>
           <div class="baris2">
             <label>Negara tujuan<input id="fm-negara" maxlength="120"></label>
             <label>Deadline<input id="fm-deadline_teks" maxlength="300" placeholder="15 Januari 2027"></label>
           </div>
           <label>Info lain<textarea id="fm-info" maxlength="3000" placeholder="Jenjang, pendanaan, syarat, dari mana infonya"></textarea></label>
-          <div class="kanan"><span class="kecil-redup" id="form-pesan"></span><button type="submit" class="utama">Kirim</button></div>
+          <div class="baris-kirim"><button type="submit" class="utama">Kirim</button><span class="kecil-redup" id="form-pesan"></span></div>
         </form>
-      </details>
-    </div>
-    <div class="blok" id="blok-antrean" hidden>
-      <h3>Antrean <span>diproses otomatis tiap 10 menit</span></h3>
-      <div class="scroll"><table><thead><tr><th>Masuk</th><th>Isi</th><th>Status</th><th>Hasil</th></tr></thead><tbody id="t-antrean"><tr><td colspan="4" class="state">memuat…</td></tr></tbody></table></div>
+      </div>
+      <aside class="riwayat" id="blok-antrean">
+        <p class="label-isian">Riwayat masukan</p>
+        <ul id="t-antrean"><li class="redup">memuat…</li></ul>
+      </aside>
     </div>
   </section>
 
@@ -885,7 +921,7 @@
       // yang sudah lolos di atas, lalu perlu cek, lalu sisanya, supaya baris yang berguna tidak tenggelam
       var urut = { terbit: 0, lolos: 1, perlu_cek: 2, ditolak: 3, impor: 4 };
       rows.sort(function (a, b) { return (urut[a.status_qc] - urut[b.status_qc]) || String(a.negara).localeCompare(String(b.negara)) || String(a.nama).localeCompare(String(b.nama)); });
-      PUBLIK = false; el("admin-qc").innerHTML = ""; DATA = rows; isiNegara(); gambarQc(); gambarDeadline(); muatCatatan(); muatKualitas();
+      PUBLIK = false; el("admin-qc").innerHTML = ""; DATA = rows; isiNegara(); gambarQc(); gambarDeadline(); muatCatatan(); muatKualitas(); isiDaftarBeasiswa(); if (!el("p-tambah").hidden) muatAntrean();
       var m = (location.hash || "").match(/^#qc\/(GL[A-Z0-9]{4})$/); if (m) { pilihTab("qc", false); bukaRinci(m[1]); }
     }).catch(function (e) { el("t-qc").innerHTML = '<tr><td colspan="10" class="state err">' + esc(pesanGalat(e, "gl_ekspor_baris")) + "</td></tr>"; });
   }
@@ -901,28 +937,74 @@
       muatAntrean(); return true;
     }).catch(function (e) { pesan(idPesan, /PGRST202|42883|gl_masukan/.test(e.message) ? "Fungsi belum ada, jalankan sql/020_gl_masukan.sql." : "Gagal: " + e.message, true); return false; });
   }
+  function pendek(u) { return String(u || "").replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""); }
+  function sejak(s) {
+    var d = new Date(String(s).replace(" ", "T") + (/[zZ]|[+-]\d\d:?\d\d$/.test(s) ? "" : "+07:00"));
+    var m = Math.round((Date.now() - d) / 60000);
+    if (isNaN(m)) return fmtWib(s);
+    if (m < 1) return "baru saja"; if (m < 60) return m + " menit lalu"; if (m < 1440) return Math.round(m / 60) + " jam lalu";
+    return fmtWib(s);
+  }
   function muatAntrean() {
     if (!SESI) return;
-    el("blok-antrean").hidden = false;
     ambil("gl_masukan_daftar?select=*").then(function (rows) {
-      var tb = el("t-antrean");
-      if (!rows.length) { tb.innerHTML = '<tr><td colspan="4" class="state">Belum ada masukan.</td></tr>'; return; }
-      tb.innerHTML = rows.map(function (r) {
-        var hasil = r.hasil_kode ? '<a href="#qc/' + esc(r.hasil_kode) + '" data-buka="' + esc(r.hasil_kode) + '"><span class="kode">' + esc(r.hasil_kode) + "</span></a>" : "";
-        return '<tr><td class="redup">' + fmtWib(r.at_wib) + '</td><td class="lebar" style="word-break: break-all">' + esc(r.isi || "") + "</td><td>" + status(ST_MASUK, r.status) + "</td><td>" + hasil + (r.pesan ? '<span class="r redup" style="display: block; white-space: normal; max-width: 320px">' + esc(r.pesan) + "</span>" : "") + "</td></tr>";
+      var ul = el("t-antrean");
+      if (!rows.length) { ul.innerHTML = '<li class="redup">Belum ada masukan. Yang kamu kirim muncul di sini beserta hasilnya.</li>'; return; }
+      ul.innerHTML = rows.slice(0, 40).map(function (r) {
+        var b = DATA.filter(function (d) { return d.kode === r.hasil_kode; })[0];
+        var ket = r.hasil_kode ? '<a href="#qc/' + esc(r.hasil_kode) + '" data-buka="' + esc(r.hasil_kode) + '"><span class="kode">' + esc(r.hasil_kode) + "</span> " + esc(b ? b.nama : "") + "</a>" : "";
+        if (r.pesan) ket += (ket ? ". " : "") + esc(r.pesan);
+        return '<li><div class="a"><span class="u" title="' + esc(r.isi || "") + '">' + esc(pendek(r.isi)) + "</span>" + status(ST_MASUK, r.status) + '</div><p class="k">' + (ket ? ket + " · " : "") + sejak(r.at_wib) + "</p></li>";
       }).join("");
-      potong(tb);
-      tb.querySelectorAll("a[data-buka]").forEach(function (a) { a.addEventListener("click", function (ev) { ev.preventDefault(); pilihTab("qc", true); bukaRinci(a.getAttribute("data-buka")); }); });
-    }).catch(function (e) { el("t-antrean").innerHTML = '<tr><td colspan="4" class="state err">' + esc(/PGRST205|42P01/.test(e.message) ? "Antrean belum dibuat, jalankan sql/020_gl_masukan.sql." : "Gagal memuat: " + e.message) + "</td></tr>"; });
+      ul.querySelectorAll("a[data-buka]").forEach(function (a) { a.addEventListener("click", function (ev) { ev.preventDefault(); pilihTab("database", true); bukaRinci(a.getAttribute("data-buka")); }); });
+    }).catch(function (e) { el("t-antrean").innerHTML = '<li class="state err">' + esc(/PGRST205|42P01/.test(e.message) ? "Antrean belum dibuat, jalankan sql/020_gl_masukan.sql." : "Gagal memuat: " + e.message) + "</li>"; });
+  }
+  // cara: tautan, berkas, atau manual. Hanya form yang dipilih yang tampil.
+  var CARA = "tautan";
+  function pilihCara(c) {
+    CARA = c;
+    document.querySelectorAll(".seg [data-cara]").forEach(function (b) { b.setAttribute("aria-checked", b.getAttribute("data-cara") === c ? "true" : "false"); });
+    document.querySelectorAll("#f-masuk [data-panel]").forEach(function (d) { d.hidden = d.getAttribute("data-panel") !== c; });
+    el("f-masuk").hidden = c === "manual"; el("f-form").hidden = c !== "manual";
+    tombolKirim();
+  }
+  document.querySelectorAll(".seg [data-cara]").forEach(function (b) { b.addEventListener("click", function () { pilihCara(b.getAttribute("data-cara")); }); });
+  // pratinjau: tiap tautan dikenali sebagai baru, sudah ada, atau artikel/medsos
+  var BERITA = /(detik|kompas|tribunnews|idntimes|liputan6|cnnindonesia|kumparan|okezone|sindonews|tempo|merdeka|suara|medium|blogspot|wordpress|instagram|facebook|tiktok|youtube|twitter|x)\.(com|co\.id|id)$/i;
+  function tautanDiisi() { return el("masuk-isi").value.split(/\s+/).map(function (s) { return s.trim(); }).filter(function (s) { return /^(https?:\/\/)?[\w-]+(\.[\w-]+)+/.test(s); }); }
+  function kenali(u) {
+    var k = pendek(u).toLowerCase(), host = k.split("/")[0];
+    var ada = DATA.filter(function (d) { return d.tautan_resmi && pendek(d.tautan_resmi).toLowerCase() === k; })[0];
+    if (ada) return ["ok", "sudah ada " + ada.kode];
+    if (BERITA.test(host)) return ["warn", "artikel, dicari resminya"];
+    return ["biru", "baru"];
+  }
+  function gambarPratinjau() {
+    var tt = tautanDiisi(), ul = el("pratinjau");
+    ul.hidden = !tt.length;
+    ul.innerHTML = tt.slice(0, 30).map(function (u) {
+      var p = pendek(u), i = p.indexOf("/"), k = kenali(u);
+      return '<li><span class="u"><b>' + esc(i < 0 ? p : p.slice(0, i)) + "</b><span>" + esc(i < 0 ? "" : p.slice(i)) + '</span></span><span class="s ' + k[0] + '">' + esc(k[1]) + "</span></li>";
+    }).join("") + (tt.length > 30 ? '<li class="redup">dan ' + (tt.length - 30) + " lagi</li>" : "");
+    tombolKirim();
+  }
+  function tombolKirim() {
+    var n = CARA === "tautan" ? tautanDiisi().length : CARA === "berkas" ? (BERKAS ? 1 : BARIS_EXCEL.length) : 0;
+    el("masuk-kirim").textContent = CARA === "tautan" ? (n ? "Kirim " + n + " tautan" : "Kirim") : CARA === "berkas" && BARIS_EXCEL.length ? "Kirim " + n + " beasiswa" : "Kirim";
+    el("ke-lama").hidden = CARA === "berkas" && BARIS_EXCEL.length > 0;
+  }
+  el("masuk-isi").addEventListener("input", gambarPratinjau);
+  function isiDaftarBeasiswa() {
+    el("daftar-beasiswa").innerHTML = DATA.map(function (d) { return '<option value="' + esc(d.nama + " (" + d.kode + ")") + '"></option>'; }).join("");
+  }
+  function kodeDipilih() {
+    var v = el("masuk-kode").value.toUpperCase(), m = v.match(/\b(GL[A-Z0-9]{4})\b/);
+    return m ? m[1] : null;
   }
   function siapkanTambah() {
-    SIAP.then(function () {
-      if (!SESI) { el("tambah-kunci").innerHTML = formAdmin(); pasangFormAdmin(); return; }
-      el("f-masuk").hidden = false; el("manual").hidden = false; muatAntrean();
-    });
+    SIAP.then(function () { if (!SESI) return; isiDaftarBeasiswa(); muatAntrean(); });
   }
   setInterval(function () { if (!document.hidden && !el("p-tambah").hidden && SESI) muatAntrean(); }, 30000);
-  el("buka-kode").addEventListener("click", function () { el("buka-kode").hidden = true; el("masuk-kode").hidden = false; el("masuk-kode").focus(); });
 
   // berkas: PDF diunggah apa adanya, Excel/CSV diurai di peramban
   var BERKAS = null, BARIS_EXCEL = [];
@@ -934,9 +1016,10 @@
   Object.keys(ALIAS).forEach(function (db) { ALIAS[db].forEach(function (a) { PETA_JUDUL[normal(a)] = db; }); });
   function tampilBerkas(teks) {
     var b = el("berkas-terpilih");
-    if (!teks) { b.hidden = true; b.innerHTML = ""; return; }
+    if (!teks) { b.hidden = true; b.innerHTML = ""; tombolKirim(); return; }
     b.hidden = false; b.innerHTML = teks + ' <button type="button" class="tautan-kecil" id="batal-berkas">batal</button>';
     el("batal-berkas").addEventListener("click", function () { BERKAS = null; BARIS_EXCEL = []; el("masuk-berkas").value = ""; tampilBerkas(""); pesan("masuk-pesan", ""); });
+    tombolKirim();
   }
   function pilihBerkas(f) {
     BERKAS = null; BARIS_EXCEL = []; pesan("masuk-pesan", "");
@@ -969,7 +1052,7 @@
       tampilBerkas("<b>" + esc(f.name) + '</b> <span class="redup">' + BARIS_EXCEL.length + " beasiswa terbaca, contoh: " + esc(BARIS_EXCEL.slice(0, 2).map(function (o) { return o.nama || o.tautan; }).join(", ")) + "</span>");
     }).catch(function (e) { tampilBerkas(""); pesan("masuk-pesan", "Berkas tidak terbaca: " + e.message, true); });
   }
-  el("pilih-berkas").addEventListener("click", function (ev) { ev.preventDefault(); el("masuk-berkas").click(); });
+  el("pilih-berkas").addEventListener("click", function (ev) { ev.preventDefault(); ev.stopPropagation(); el("masuk-berkas").click(); });
   el("masuk-berkas").addEventListener("change", function () { pilihBerkas(el("masuk-berkas").files[0]); });
   ["dragenter", "dragover"].forEach(function (n) { el("kotak-masuk").addEventListener(n, function (ev) { ev.preventDefault(); el("kotak-masuk").classList.add("seret-aktif"); }); });
   ["dragleave", "drop"].forEach(function (n) { el("kotak-masuk").addEventListener(n, function () { el("kotak-masuk").classList.remove("seret-aktif"); }); });
@@ -977,11 +1060,11 @@
 
   el("f-masuk").addEventListener("submit", function (ev) {
     ev.preventDefault();
-    var kode = el("masuk-kode").value.trim().toUpperCase() || null;
-    var tautan = el("masuk-isi").value.split(/\s+/).map(function (s) { return s.trim(); }).filter(function (s) { return /^(https?:\/\/)?[\w-]+(\.[\w-]+)+/.test(s); });
-    var baris = tautan.map(function (u) { return { jenis: "tautan", tautan: u, kode: kode }; }).concat(BARIS_EXCEL);
-    function selesai(ok) { if (!ok) return; el("masuk-isi").value = ""; BERKAS = null; BARIS_EXCEL = []; el("masuk-berkas").value = ""; tampilBerkas(""); }
-    if (BERKAS) {
+    var kode = kodeDipilih();
+    if (el("masuk-kode").value.trim() && !kode) { pesan("masuk-pesan", "Pilih beasiswa dari daftar saran, atau kosongkan kolomnya.", true); return; }
+    var baris = CARA === "tautan" ? tautanDiisi().map(function (u) { return { jenis: "tautan", tautan: u, kode: kode }; }) : BARIS_EXCEL.slice();
+    function selesai(ok) { if (!ok) return; el("masuk-isi").value = ""; el("masuk-kode").value = ""; BERKAS = null; BARIS_EXCEL = []; el("masuk-berkas").value = ""; tampilBerkas(""); gambarPratinjau(); }
+    if (CARA === "berkas" && BERKAS) {
       var path = new Date().toISOString().slice(0, 10) + "/" + Date.now() + "-" + BERKAS.name.replace(/[^\w.-]+/g, "_").slice(-80);
       pesan("masuk-pesan", "mengunggah PDF…");
       SB.storage.from("gl-masukan").upload(path, BERKAS, { contentType: "application/pdf", upsert: false }).then(function (r) {
@@ -990,7 +1073,7 @@
       });
       return;
     }
-    if (!baris.length) { pesan("masuk-pesan", "Tempel tautan atau pilih berkas dulu.", true); return; }
+    if (!baris.length) { pesan("masuk-pesan", CARA === "tautan" ? "Tempel tautan dulu." : "Pilih berkas dulu.", true); return; }
     kirimMasukan(baris, "masuk-pesan").then(selesai);
   });
 
@@ -1026,7 +1109,8 @@
     tb.querySelectorAll("button[data-kode]").forEach(function (b) { b.addEventListener("click", function () { bukaRinci(b.getAttribute("data-kode")); }); });
     tb.querySelectorAll("button[data-tambah]").forEach(function (b) { b.addEventListener("click", function () {
       pilihTab("tambah", true); siapkanTambah();
-      el("buka-kode").hidden = true; el("masuk-kode").hidden = false; el("masuk-kode").value = b.getAttribute("data-tambah"); el("masuk-isi").focus();
+      var kd = b.getAttribute("data-tambah"), bs = DATA.filter(function (d) { return d.kode === kd; })[0];
+      pilihCara("tautan"); el("masuk-kode").value = bs ? bs.nama + " (" + kd + ")" : kd; el("masuk-isi").focus();
     }); });
   }
   function muatKualitas() {
