@@ -283,7 +283,7 @@
   a.ghost { text-decoration: none; display: inline-block; }
   .redup { color: var(--ink-2); }
   @media (max-width: 760px) {
-    .bar .denyut, #dimuat { display: none; }
+    .bar .denyut, #dimuat, #akun-email { display: none; }
     .bar-isi { flex-wrap: nowrap; }
     .akun .ghost { padding: 5px 10px; font-size: .76rem; }
     .akun { flex-wrap: nowrap; } .merek span { display: none; }
@@ -297,7 +297,7 @@
   <div class="bar-isi">
     <a class="merek" href="#database"><b>FYGO</b><span>Database beasiswa</span></a>
     <p class="denyut" aria-live="off"><span class="live" id="live"><i aria-hidden="true"></i><b id="live-teks">LIVE</b></span><span class="hitung"><span id="hitung-label">memuat jadwal…</span> <b id="hitung-sisa"></b></span></p>
-    <div class="akun"><span id="dimuat" class="redup"></span><button id="tombol-admin" type="button" class="ghost">Masuk admin</button><button id="keluar-web" type="button" class="ghost">Keluar</button></div>
+    <div class="akun"><span id="dimuat" class="redup"></span><span id="akun-email" class="redup"></span><button id="keluar-web" type="button" class="ghost">Keluar</button></div>
   </div>
   <nav class="menu" role="tablist" aria-label="Menu">
     <button role="tab" data-tab="database" aria-selected="true">Database</button>
@@ -522,30 +522,12 @@
   var TOKEN = KEY, SESI = null;
   var SIAP = SB.auth.getSession().then(function (r) { SESI = r.data.session; if (SESI) TOKEN = SESI.access_token; });
   function formAdmin() {
-    return '<div style="padding: 24px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center"><span>Tabel lengkap hanya untuk admin. Masuk dengan email admin:</span><input type="email" id="email-admin" placeholder="email admin" style="padding: 8px 10px; border: 1px solid #ccc; border-radius: 8px; min-width: 240px"><button type="button" id="kirim-admin" style="padding: 8px 14px; border-radius: 8px; border: 0; background: #2563FF; color: #fff; cursor: pointer">Kirim tautan masuk</button><span id="pesan-admin"></span></div>';
+    return '<p class="state" style="padding: 12px 0 18px">Tabel lengkap dan tombol admin hanya untuk akun admin. <a href="/login?lanjut=' + encodeURIComponent(location.pathname + location.hash) + '" id="ke-login-admin">Masuk dengan email admin</a>.</p>';
   }
   function pasangFormAdmin() {
-    var b = el("kirim-admin"); if (!b) return;
-    // Supabase menolak permintaan kedua dalam 60 detik, jadi tombol dikunci selama itu
-    var jam = null;
-    function kunci(detik) {
-      clearInterval(jam);
-      b.disabled = true;
-      jam = setInterval(function () {
-        detik--; b.textContent = detik > 0 ? "Kirim lagi dalam " + detik + " detik" : "Kirim tautan masuk";
-        if (detik <= 0) { clearInterval(jam); b.disabled = false; }
-      }, 1000);
-    }
-    b.addEventListener("click", function () {
-      var email = el("email-admin").value.trim(); if (!email) return;
-      b.disabled = true;
-      SB.auth.signInWithOtp({ email: email, options: { emailRedirectTo: location.origin + location.pathname } }).then(function (r) {
-        var m = r.error && /after ([0-9]+) seconds/.exec(r.error.message || "");
-        if (m) { el("pesan-admin").textContent = "Tautan sudah dikirim barusan. Cek inbox dan folder Spam, atau tunggu " + m[1] + " detik untuk kirim ulang."; kunci(+m[1]); return; }
-        el("pesan-admin").textContent = r.error ? "Gagal: " + r.error.message : "Tautan dikirim ke " + email + ". Cek inbox dan folder Spam, lalu buka dari perangkat ini.";
-        if (r.error) b.disabled = false; else kunci(60);
-      });
-    });
+    var a = el("ke-login-admin"); if (!a) return;
+    // sesi situs (username lama) dibuang dulu supaya halaman login tidak langsung melewatkan
+    a.addEventListener("click", function (ev) { ev.preventDefault(); fetch("/api/keluar", { method: "POST" }).finally(function () { location.href = a.href; }); });
   }
   function ambil(path) {
     return SIAP.then(function () { return fetch(URL_ + path, { headers: { apikey: KEY, Authorization: "Bearer " + TOKEN } }); }).then(function (r) {
@@ -1064,24 +1046,12 @@
   }
   isiDenyut();
   setInterval(function () { if (!document.hidden) isiDenyut(); }, 1000);
-  // tombol admin di kepala: formulir masuknya ada di tab QC, di dalam tabel
-  SIAP.then(function () {
-    var t = el("tombol-admin");
-    if (SESI) {
-      t.textContent = "Keluar admin"; t.title = SESI.user.email;
-      t.addEventListener("click", function () { SB.auth.signOut().then(function () { location.reload(); }); });
-    } else {
-      t.addEventListener("click", function () {
-        pilihTab("database", true);
-        var f = el("email-admin");
-        if (f) { f.scrollIntoView({ behavior: "smooth", block: "center" }); f.focus(); }
-      });
-    }
-  });
+  // satu akun: email admin tampil di kanan atas, Keluar menutup sesi situs dan Supabase sekaligus
+  SIAP.then(function () { if (SESI) el("akun-email").textContent = SESI.user.email; });
   muat();
 })();
 </script>
-<script>document.getElementById("keluar-web").addEventListener("click",function(){fetch("/api/keluar",{method:"POST"}).finally(function(){location.replace("/login")})});</script>
+<script>document.getElementById("keluar-web").addEventListener("click",function(){try{Object.keys(localStorage).forEach(function(k){if(/^sb-.*-auth-token/.test(k))localStorage.removeItem(k)})}catch(e){}fetch("/api/keluar",{method:"POST"}).finally(function(){location.replace("/login")})});</script>
 <script src="/pindah.js" defer></script>
 </body>
 </html>

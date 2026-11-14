@@ -6,50 +6,213 @@
 <meta name="robots" content="noindex">
 <title>Masuk FYGO Automation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@800&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
-  :root { color-scheme: light; --bg: #FFFFFF; --ink: #101828; --ink-2: #475467; --rule-2: #D9D6CC; --accent: #2563FF; --accent-ink: #FFFFFF; --bad: #B42318;
+  :root { color-scheme: light; --bg: #FFFFFF; --panel: #F7F6F2; --ink: #101828; --ink-2: #5B6474; --rule: #E4E2DB; --rule-2: #D2CFC5;
+    --accent: #2563FF; --accent-2: #1D4FD8; --bad: #B42318; --ok: #067647;
     --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; --judul: Manrope, var(--sans); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { color-scheme: dark; --bg: #0B1020; --panel: #10172A; --ink: #EEF0F6; --ink-2: #A3ADBE; --rule: #1A2234; --rule-2: #2A3550; --accent: #5B86FF; --accent-2: #7A9CFF; --bad: #F97066; --ok: #47CD89; }
+  }
   * { box-sizing: border-box; }
   html, body { margin: 0; min-height: 100%; }
-  body { background: var(--bg); color: var(--ink); font: 400 16px/1.5 var(--sans); min-height: 100vh; display: grid; place-items: center; padding: 24px 20px; }
-  main { width: 100%; max-width: 360px; }
-  h1 { font: 800 2rem/1 var(--judul); letter-spacing: -0.03em; color: #2563FF; margin: 0 0 6px; }
-  p { margin: 0 0 28px; color: var(--ink-2); font-size: 0.94rem; }
-  label { display: block; font-size: 0.84rem; font-weight: 500; color: var(--ink-2); margin-bottom: 14px; }
-  input { display: block; width: 100%; margin-top: 5px; min-height: 48px; padding: 11px 12px; font: inherit; font-size: 1rem; color: var(--ink); background: var(--bg); border: 1px solid var(--rule-2); border-radius: 10px; }
-  button { width: 100%; min-height: 50px; margin-top: 6px; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px; font: inherit; font-weight: 700; cursor: pointer; }
-  button:disabled { opacity: 0.6; cursor: progress; }
+  body { background: var(--bg); color: var(--ink); font: 400 16px/1.5 var(--sans); min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+
+  /* panel merek: biru FYGO, angka hidup dari basis data, tanpa foto */
+  .merek { position: relative; overflow: hidden; color: #fff; padding: 48px 56px; display: flex; flex-direction: column; justify-content: space-between;
+    background: radial-gradient(ellipse 90% 70% at 20% 10%, #3D6BFF 0%, #2563FF 30%, #12307F 68%, #0B1020 100%); }
+  .merek::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(rgba(255,255,255,.12) 1px, transparent 1px); background-size: 22px 22px; mask-image: linear-gradient(180deg, transparent 0%, #000 60%); }
+  .merek > * { position: relative; z-index: 1; }
+  .logo { font: 800 1.5rem/1 var(--judul); letter-spacing: -0.03em; }
+  .logo span { font: 500 .8rem/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; opacity: .75; margin-left: 10px; }
+  .slogan h2 { font: 800 clamp(2rem, 3.6vw, 3.1rem)/1.05 var(--judul); letter-spacing: -0.03em; margin: 0 0 14px; max-width: 14ch; }
+  .slogan p { margin: 0; max-width: 40ch; color: rgba(255,255,255,.82); font-size: 1rem; }
+  .angka { display: flex; gap: 12px; flex-wrap: wrap; }
+  .angka div { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.16); border-radius: 14px; padding: 14px 16px; min-width: 128px; backdrop-filter: blur(6px); }
+  .angka b { display: block; font: 800 1.6rem/1 var(--judul); letter-spacing: -0.02em; }
+  .angka span { font-size: .78rem; color: rgba(255,255,255,.78); }
+
+  .sisi { display: grid; place-items: center; padding: 40px 24px; }
+  main { width: 100%; max-width: 380px; }
+  h1 { font: 800 1.75rem/1.15 var(--judul); letter-spacing: -0.02em; margin: 0 0 6px; }
+  .sub { margin: 0 0 28px; color: var(--ink-2); font-size: .94rem; }
+  label { display: block; font-size: .84rem; font-weight: 600; color: var(--ink); margin-bottom: 16px; }
+  .isian { position: relative; margin-top: 6px; }
+  input { display: block; width: 100%; min-height: 48px; padding: 11px 14px; font: inherit; font-size: 1rem; color: var(--ink); background: var(--bg); border: 1px solid var(--rule-2); border-radius: 12px; transition: border-color .15s, box-shadow .15s; }
+  input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent); }
+  .isian input[type="password"], .isian input.sandi { padding-right: 76px; }
+  .lihat { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: 0; color: var(--ink-2); font: 600 .8rem var(--sans); padding: 8px; cursor: pointer; }
+  .baris { display: flex; justify-content: space-between; align-items: center; margin: -4px 0 20px; font-size: .86rem; }
+  .baris label { display: flex; gap: 8px; align-items: center; margin: 0; font-weight: 500; color: var(--ink-2); }
+  .baris input { width: 16px; min-height: 16px; height: 16px; accent-color: var(--accent); }
+  a, .tautan { color: var(--accent); font-weight: 600; text-decoration: none; background: none; border: 0; padding: 0; font: inherit; font-weight: 600; cursor: pointer; }
+  a:hover, .tautan:hover { text-decoration: underline; }
+  .utama { width: 100%; min-height: 50px; background: var(--accent); color: #fff; border: 0; border-radius: 12px; font: inherit; font-weight: 700; cursor: pointer; transition: background .15s; }
+  .utama:hover { background: var(--accent-2); }
+  .utama:disabled { opacity: .6; cursor: progress; }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  #galat { min-height: 1.5em; margin: 12px 0 0; color: var(--bad); font-size: 0.9rem; }
+  .pesan { min-height: 1.5em; margin: 14px 0 0; font-size: .9rem; color: var(--bad); }
+  .pesan.ok { color: var(--ok); }
+  .kaki { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--rule); font-size: .84rem; color: var(--ink-2); }
+  [hidden] { display: none !important; }
+
+  @media (max-width: 860px) {
+    body { grid-template-columns: 1fr; }
+    .merek { padding: 28px 22px; min-height: 0; gap: 22px; }
+    .slogan h2 { font-size: 1.7rem; max-width: none; }
+    .slogan p { font-size: .9rem; }
+    .angka div { min-width: 0; flex: 1; padding: 10px 12px; }
+    .angka b { font-size: 1.2rem; }
+    .sisi { padding: 30px 20px 48px; place-items: start center; }
+  }
 </style>
 </head>
 <body>
-<main>
-  <h1>FYGO</h1>
-  <p>Automation. Masuk untuk melihat alur konten.</p>
-  <form id="f">
-    <label for="u">Username<input id="u" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
-    <label for="p">Password<input id="p" name="password" type="password" autocomplete="current-password" required></label>
-    <button id="b" type="submit">Masuk</button>
-    <div id="galat" role="alert"></div>
-  </form>
-</main>
+<aside class="merek" aria-label="FYGO">
+  <div class="logo">FYGO<span>Automation</span></div>
+  <div class="slogan">
+    <h2>Database beasiswa yang mengurus dirinya sendiri.</h2>
+    <p>Halaman resmi dipantau tiap hari, syarat diekstrak dengan bukti, dan konten sosmed dirakit dari data yang sama.</p>
+  </div>
+  <div class="angka" id="angka" aria-live="polite">
+    <div><b id="a-beasiswa">–</b><span>beasiswa dipantau</span></div>
+    <div><b id="a-lolos">–</b><span>lolos cek kualitas</span></div>
+    <div><b id="a-kandidat">–</b><span>temuan 24 jam</span></div>
+  </div>
+</aside>
+
+<div class="sisi">
+  <main>
+    <!-- masuk -->
+    <section id="m-masuk">
+      <h1>Selamat datang kembali</h1>
+      <p class="sub">Masuk dengan email admin dan password-mu.</p>
+      <form id="f-masuk" novalidate>
+        <label for="u">Email<div class="isian"><input id="u" name="username" type="text" inputmode="email" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="nama@email.com" required></div></label>
+        <label for="p">Password<div class="isian"><input id="p" name="password" type="password" autocomplete="current-password" required><button type="button" class="lihat" data-lihat="p">Lihat</button></div></label>
+        <div class="baris"><span></span><button type="button" class="tautan" id="ke-lupa">Lupa password?</button></div>
+        <button class="utama" id="b-masuk" type="submit">Masuk</button>
+        <div class="pesan" id="g-masuk" role="alert"></div>
+      </form>
+      <p class="kaki">Belum punya password? Klik Lupa password dan masukkan email admin-mu. Kami kirim tautan sekali pakai untuk membuatnya.</p>
+    </section>
+
+    <!-- lupa -->
+    <section id="m-lupa" hidden>
+      <h1>Atur password</h1>
+      <p class="sub">Masukkan email admin. Tautan untuk membuat password baru dikirim ke email itu.</p>
+      <form id="f-lupa" novalidate>
+        <label for="e">Email<div class="isian"><input id="e" type="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="nama@email.com" required></div></label>
+        <button class="utama" id="b-lupa" type="submit">Kirim tautan</button>
+        <div class="pesan" id="g-lupa" role="alert"></div>
+      </form>
+      <p class="kaki"><button type="button" class="tautan" id="ke-masuk">Kembali ke halaman masuk</button></p>
+    </section>
+
+    <!-- atur password baru, sesudah membuka tautan dari email -->
+    <section id="m-atur" hidden>
+      <h1>Buat password baru</h1>
+      <p class="sub" id="atur-sub">Minimal 8 karakter. Sesudah ini kamu langsung masuk.</p>
+      <form id="f-atur" novalidate>
+        <label for="p1">Password baru<div class="isian"><input id="p1" class="sandi" type="password" autocomplete="new-password" minlength="8" required><button type="button" class="lihat" data-lihat="p1">Lihat</button></div></label>
+        <label for="p2">Ulangi password<div class="isian"><input id="p2" class="sandi" type="password" autocomplete="new-password" minlength="8" required></div></label>
+        <button class="utama" id="b-atur" type="submit">Simpan dan masuk</button>
+        <div class="pesan" id="g-atur" role="alert"></div>
+      </form>
+    </section>
+  </main>
+</div>
+
 <script>
-  document.getElementById("f").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var b = document.getElementById("b"), g = document.getElementById("galat");
-    b.disabled = true; g.textContent = "";
-    fetch("/api/masuk", { method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ username: document.getElementById("u").value.trim(), password: document.getElementById("p").value }) })
+(function () {
+  var SB_URL = "https://idezvrptuhqkwkwaonzq.supabase.co";
+  var SB_KEY = "sb_publishable_Hm0-sGWlq_XwDXtHHCT5JA_n6_jhg0a";
+  var SB = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, detectSessionInUrl: true, flowType: "pkce" } });
+  function el(id) { return document.getElementById(id); }
+  function mode(m) { ["masuk", "lupa", "atur"].forEach(function (x) { el("m-" + x).hidden = x !== m; }); var f = el("m-" + m).querySelector("input"); if (f) f.focus(); }
+  function pesan(id, teks, ok) { el(id).textContent = teks || ""; el(id).classList.toggle("ok", !!ok); }
+  function lanjut() { var l = new URLSearchParams(location.search).get("lanjut") || "/"; location.replace(/^\/(?!\/)/.test(l) && !/^\/login/.test(l) ? l : "/"); }
+
+  document.querySelectorAll("[data-lihat]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var i = el(b.getAttribute("data-lihat")), buka = i.type === "password";
+      i.type = buka ? "text" : "password"; b.textContent = buka ? "Tutup" : "Lihat";
+    });
+  });
+  el("ke-lupa").addEventListener("click", function () { el("e").value = el("u").value.includes("@") ? el("u").value.trim() : ""; mode("lupa"); });
+  el("ke-masuk").addEventListener("click", function () { mode("masuk"); });
+
+  function masuk(username, password, idPesan, tombol) {
+    tombol.disabled = true; pesan(idPesan, "");
+    return fetch("/api/masuk", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ username: username, password: password }) })
       .then(function (r) { return r.json(); })
       .then(function (j) {
-        if (!j.ok) { g.textContent = j.alasan || "Gagal masuk."; b.disabled = false; return; }
-        var l = new URLSearchParams(location.search).get("lanjut") || "/";
-        location.replace(/^\/(?!\/)/.test(l) ? l : "/");
+        if (!j.ok) { pesan(idPesan, j.alasan || "Gagal masuk."); tombol.disabled = false; return; }
+        // sesi Supabase disimpan supaya tombol admin di halaman status langsung jalan
+        if (j.sesi) return SB.auth.setSession(j.sesi).then(lanjut);
+        lanjut();
       })
-      .catch(function () { g.textContent = "Tidak tersambung, coba lagi."; b.disabled = false; });
+      .catch(function () { pesan(idPesan, "Tidak tersambung, coba lagi."); tombol.disabled = false; });
+  }
+  el("f-masuk").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var u = el("u").value.trim(), p = el("p").value;
+    if (!u || !p) { pesan("g-masuk", "Isi email dan password."); return; }
+    masuk(u, p, "g-masuk", el("b-masuk"));
   });
+
+  el("f-lupa").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var e = el("e").value.trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) { pesan("g-lupa", "Email belum benar."); return; }
+    var b = el("b-lupa"); b.disabled = true; pesan("g-lupa", "");
+    SB.auth.resetPasswordForEmail(e, { redirectTo: location.origin + "/login?atur=1" }).then(function (r) {
+      var m = r.error && /after ([0-9]+) seconds/.exec(r.error.message || "");
+      if (m) { pesan("g-lupa", "Tautan baru saja dikirim. Coba lagi dalam " + m[1] + " detik."); b.disabled = false; return; }
+      if (r.error) { pesan("g-lupa", "Gagal: " + r.error.message); b.disabled = false; return; }
+      pesan("g-lupa", "Kalau email itu terdaftar sebagai admin, tautannya sudah dikirim. Cek inbox dan folder Spam, lalu buka dari perangkat ini.", true);
+    });
+  });
+
+  // datang dari tautan email: supabase-js menukar ?code= jadi sesi pemulihan
+  var DARI_EMAIL = /[?&](atur=1|code=)/.test(location.search) || /type=recovery/.test(location.hash);
+  if (DARI_EMAIL) {
+    mode("atur");
+    SB.auth.getSession().then(function (r) {
+      if (!r.data.session) { el("atur-sub").textContent = "Tautan sudah kedaluwarsa atau dibuka di perangkat lain. Minta tautan baru lewat Lupa password."; el("f-atur").hidden = true; }
+    });
+  }
+  el("f-atur").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var p1 = el("p1").value, p2 = el("p2").value, b = el("b-atur");
+    if (p1.length < 8) { pesan("g-atur", "Password minimal 8 karakter."); return; }
+    if (p1 !== p2) { pesan("g-atur", "Dua password belum sama."); return; }
+    b.disabled = true; pesan("g-atur", "");
+    SB.auth.getSession().then(function (r) {
+      var email = r.data.session && r.data.session.user.email;
+      if (!email) { pesan("g-atur", "Sesi tautan habis. Minta tautan baru."); b.disabled = false; return; }
+      return SB.auth.updateUser({ password: p1 }).then(function (u) {
+        if (u.error) { pesan("g-atur", "Gagal: " + u.error.message); b.disabled = false; return; }
+        history.replaceState(null, "", "/login");
+        return masuk(email, p1, "g-atur", b);
+      });
+    });
+  });
+
+  // angka di panel merek, dari view publik yang sama dengan halaman status
+  fetch(SB_URL + "/rest/v1/gl_corong?select=*", { headers: { apikey: SB_KEY, Authorization: "Bearer " + SB_KEY } })
+    .then(function (r) { return r.ok ? r.json() : []; })
+    .then(function (rows) {
+      var c = rows[0]; if (!c) return;
+      var f = function (n) { n = Number(n); return isFinite(n) ? n.toLocaleString("id-ID") : "–"; };
+      el("a-beasiswa").textContent = f(c.beasiswa_total);
+      el("a-lolos").textContent = f(c.qc_lolos != null ? c.qc_lolos : c.lolos);
+      el("a-kandidat").textContent = f(c.kandidat_24jam);
+    }).catch(function () {});
+  if (!DARI_EMAIL) el("u").focus();
+})();
 </script>
 </body>
 </html>
