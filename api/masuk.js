@@ -73,8 +73,6 @@ export async function POST(request) {
     return balas(200, { ok: true, admin: true, sesi: h.sesi }, { "set-cookie": cookieSesi(rahasia) });
   }
 
-  if (!process.env.AUTH_USER || !samaTeks(nama, process.env.AUTH_USER) || !passwordBenar(sandi)) {
-    return balas(401, { ok: false, alasan: "Email atau password salah." });
-  }
-  return balas(200, { ok: true, admin: false }, { "set-cookie": cookieSesi(rahasia) });
+  // username lama (hanya lihat) dimatikan 14 Nov 2026: halaman ini khusus admin
+  return balas(401, { ok: false, alasan: "Masuk pakai email admin. Belum punya password? Klik Lupa password." });
 }

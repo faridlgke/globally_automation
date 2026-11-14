@@ -260,53 +260,65 @@
   .skor-bar { display: inline-block; width: 46px; height: 6px; border-radius: 3px; background: var(--rule-2); vertical-align: middle; margin-right: 6px; overflow: hidden; }
   .skor-bar i { display: block; height: 100%; background: var(--accent); }
   @media (max-width: 760px) { .form-stop .baris2 { grid-template-columns: 1fr; } .baris-kirim .utama { margin-left: 0; } }
-  /* struktur baru 14 Nov 2026: bilah atas ringkas + menu kerja; alur sungai hanya di Sosmed */
-  .bar { position: sticky; top: 0; z-index: 20; background: var(--bg); border-bottom: 1px solid var(--rule); }
-  .bar-isi { max-width: 1120px; margin: 0 auto; padding: 12px 20px 0; display: flex; align-items: center; gap: 10px 22px; flex-wrap: wrap; }
-  .merek { display: flex; align-items: baseline; gap: 10px; color: var(--ink); text-decoration: none; }
-  .merek b { font-family: var(--judul); font-weight: 800; font-size: 1.35rem; letter-spacing: -0.02em; }
-  .merek span { font-size: .82rem; color: var(--ink-2); }
-  .bar .denyut { margin: 0; font-size: .8rem; color: var(--ink-2); justify-content: flex-start; }
-  .bar .hitung b { color: var(--ink); font-size: .84rem; }
-  .bar .live { font-size: .68rem; padding: 3px 9px 3px 8px; }
-  .akun { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: .8rem; }
-  .menu { max-width: 1120px; margin: 0 auto; padding: 6px 20px 0; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
-  .menu::-webkit-scrollbar { display: none; }
-  .menu button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 10px 14px 11px; font-size: .92rem; font-weight: 600; color: var(--ink-2); white-space: nowrap; border-radius: 0; }
-  .menu button:hover { color: var(--ink); }
-  .menu button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
-  .wrap > .lembar:first-of-type, .wrap > .lembar { margin-top: 28px; border-top: 0; padding-top: 0; }
+  /* sidebar 14 Nov 2026: menu Data dan Konten di kiri, isi di kanan; di HP jadi bilah atas */
+  .sisi { position: fixed; inset: 0 auto 0 0; width: 228px; z-index: 20; display: flex; flex-direction: column; gap: 26px; padding: 22px 14px 18px; background: var(--panel); border-right: 1px solid var(--rule); overflow-y: auto; }
+  .merek { display: flex; flex-direction: column; gap: 2px; padding: 0 10px; color: var(--ink); text-decoration: none; }
+  .merek b { font-family: var(--judul); font-weight: 800; font-size: 1.45rem; letter-spacing: -0.02em; line-height: 1.1; }
+  .merek span { font-size: .8rem; color: var(--ink-2); }
+  .menu { display: flex; flex-direction: column; gap: 2px; }
+  .menu .grup { font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); padding: 14px 10px 6px; }
+  .menu .grup:first-child { padding-top: 0; }
+  .menu button { background: none; border: 0; border-radius: 8px; text-align: left; padding: 9px 10px; font-size: .92rem; font-weight: 600; color: var(--ink-2); white-space: nowrap; }
+  .menu button:hover { color: var(--ink); background: var(--hover); }
+  .menu button[aria-selected="true"] { color: var(--ink); background: var(--panel-2); box-shadow: inset 3px 0 0 var(--accent); }
+  .sisi-bawah { margin-top: auto; display: flex; flex-direction: column; gap: 12px; padding: 0 10px; font-size: .78rem; }
+  .sisi .denyut { margin: 0; font-size: .78rem; color: var(--ink-2); display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .sisi .hitung b { color: var(--ink); }
+  .sisi .live { font-size: .66rem; padding: 3px 9px 3px 8px; }
+  .akun { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+  #akun-email { word-break: break-all; }
+  .wrap { margin-left: 228px; max-width: none; padding: 0 40px 72px; }
+  .wrap > * { max-width: 1160px; }
+  .wrap > .lembar { margin-top: 34px; border-top: 0; padding-top: 0; }
   .ekspor { display: flex; gap: 8px; flex-wrap: wrap; }
   .filter-lain { display: contents; }
   .filter-lain[hidden] { display: none; }
   .alat .tautan-kecil { font-size: .84rem; }
   a.ghost { text-decoration: none; display: inline-block; }
   .redup { color: var(--ink-2); }
-  @media (max-width: 760px) {
-    .bar .denyut, #dimuat, #akun-email { display: none; }
-    .bar-isi { flex-wrap: nowrap; }
+  @media (max-width: 900px) {
+    .sisi { position: sticky; top: 0; inset: auto; width: auto; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 10px 12px 0; border-right: 0; border-bottom: 1px solid var(--rule); background: var(--bg); overflow: visible; }
+    .merek { padding: 0 4px; } .merek b { font-size: 1.25rem; } .merek span { display: none; }
+    .sisi-bawah { order: 2; margin: 0 0 0 auto; padding: 0; }
+    .sisi .denyut, #dimuat, #akun-email { display: none; }
     .akun .ghost { padding: 5px 10px; font-size: .76rem; }
-    .akun { flex-wrap: nowrap; } .merek span { display: none; }
-    .menu { padding: 2px 8px 0; }
-    .menu button { padding: 10px 10px 11px; font-size: .88rem; }
+    .menu { order: 3; flex-basis: 100%; flex-direction: row; overflow-x: auto; scrollbar-width: none; gap: 2px; }
+    .menu::-webkit-scrollbar { display: none; }
+    .menu .grup { display: none; }
+    .menu button { border-radius: 0; padding: 10px 10px 11px; font-size: .88rem; border-bottom: 2px solid transparent; }
+    .menu button[aria-selected="true"] { background: none; box-shadow: none; border-bottom-color: var(--accent); }
+    .wrap { margin-left: 0; padding: 0 16px 64px; }
+    .wrap > .lembar { margin-top: 24px; }
   }
 </style>
 </head>
 <body>
-<header class="bar">
-  <div class="bar-isi">
-    <a class="merek" href="#database"><b>FYGO</b><span>Database beasiswa</span></a>
-    <p class="denyut" aria-live="off"><span class="live" id="live"><i aria-hidden="true"></i><b id="live-teks">LIVE</b></span><span class="hitung"><span id="hitung-label">memuat jadwal…</span> <b id="hitung-sisa"></b></span></p>
-    <div class="akun"><span id="dimuat" class="redup"></span><span id="akun-email" class="redup"></span><button id="keluar-web" type="button" class="ghost">Keluar</button></div>
-  </div>
-  <nav class="menu" role="tablist" aria-label="Menu">
+<aside class="sisi">
+  <a class="merek" href="#database"><b>FYGO</b><span>Database beasiswa</span></a>
+  <nav class="menu" role="tablist" aria-label="Menu" aria-orientation="vertical">
+    <span class="grup">Data</span>
     <button role="tab" data-tab="database" aria-selected="true">Database</button>
     <button role="tab" data-tab="tambah">Tambah data</button>
     <button role="tab" data-tab="cek">Perlu dicek</button>
     <button role="tab" data-tab="pantau">Pantauan</button>
-    <button role="tab" data-tab="sosmed">Sosmed</button>
+    <span class="grup">Konten</span>
+    <button role="tab" data-tab="sosmed">Alur sosmed</button>
   </nav>
-</header>
+  <div class="sisi-bawah">
+    <p class="denyut" aria-live="off"><span class="live" id="live"><i aria-hidden="true"></i><b id="live-teks">LIVE</b></span><span class="hitung"><span id="hitung-label">memuat jadwal…</span> <b id="hitung-sisa"></b></span></p>
+    <div class="akun"><span id="dimuat" class="redup"></span><span id="akun-email" class="redup"></span><button id="keluar-web" type="button" class="ghost">Keluar</button></div>
+  </div>
+</aside>
 
 <div class="wrap">
   <section class="lembar" id="p-database" role="tabpanel">
@@ -403,7 +415,7 @@
   </section>
 
   <section class="lembar" id="p-cek" role="tabpanel" hidden>
-    <div class="blok" id="cek-kunci"><p class="kosong-lembar" style="padding-top: 0">Bagian ini khusus admin. Klik Masuk admin di kanan atas.</p></div>
+    <div id="cek-kunci" hidden></div>
     <div class="blok" id="blok-kualitas" hidden>
       <h3>Kualitas data <span>skor terendah dulu: kolom yang terisi dari halaman resmi, halaman salah, dan saran tindakan</span></h3>
       <div class="alat">
@@ -480,7 +492,7 @@
     </div>
   </section>
 
-  <footer>Dibaca langsung dari basis data FYGO lewat kunci publik baca-saja, tabel lengkap hanya untuk admin. Angka di tabel berasal dari halaman resmi penyelenggara dengan kutipan bukti, yang bertanda Excel belum diverifikasi. Status Open, Open Soon, Closed, dan TBC dihitung tiap hari dari deadline. Ekstraksi otomatis berjalan tiap hari pukul 03.00 WIB.</footer>
+  <footer>Angka di tabel berasal dari halaman resmi penyelenggara dengan kutipan bukti, yang bertanda Excel belum diverifikasi. Status Open, Open Soon, Closed, dan TBC dihitung tiap hari dari deadline. Ekstraksi otomatis berjalan tiap hari pukul 03.00 WIB.</footer>
 </div>
 
 <script>
@@ -521,14 +533,13 @@
   var SB = window.supabase.createClient(URL_.replace("/rest/v1/", ""), KEY, { auth: { persistSession: true, detectSessionInUrl: true, flowType: "pkce" } });
   var TOKEN = KEY, SESI = null;
   var SIAP = SB.auth.getSession().then(function (r) { SESI = r.data.session; if (SESI) TOKEN = SESI.access_token; });
-  function formAdmin() {
-    return '<p class="state" style="padding: 12px 0 18px">Tabel lengkap dan tombol admin hanya untuk akun admin. <a href="/login?lanjut=' + encodeURIComponent(location.pathname + location.hash) + '" id="ke-login-admin">Masuk dengan email admin</a>.</p>';
-  }
-  function pasangFormAdmin() {
-    var a = el("ke-login-admin"); if (!a) return;
-    // sesi situs (username lama) dibuang dulu supaya halaman login tidak langsung melewatkan
-    a.addEventListener("click", function (ev) { ev.preventDefault(); fetch("/api/keluar", { method: "POST" }).finally(function () { location.href = a.href; }); });
-  }
+  // halaman ini khusus admin (14 Nov 2026): tanpa sesi Supabase langsung kembali ke /login
+  SIAP.then(function () {
+    if (SESI) return;
+    fetch("/api/keluar", { method: "POST" }).finally(function () { location.replace("/login?lanjut=" + encodeURIComponent(location.pathname + location.hash)); });
+  });
+  function formAdmin() { return ""; }
+  function pasangFormAdmin() {}
   function ambil(path) {
     return SIAP.then(function () { return fetch(URL_ + path, { headers: { apikey: KEY, Authorization: "Bearer " + TOKEN } }); }).then(function (r) {
       if (!r.ok) { return r.text().then(function (t) { throw new Error("HTTP " + r.status + " " + t.slice(0, 160)); }); }
@@ -577,7 +588,7 @@
   menu.forEach(function (b, i) {
     b.addEventListener("click", function () { pilihTab(b.getAttribute("data-tab"), true); window.scrollTo(0, 0); });
     b.addEventListener("keydown", function (ev) {
-      var j = ev.key === "ArrowRight" ? i + 1 : ev.key === "ArrowLeft" ? i - 1 : -1;
+      var j = /^Arrow(Right|Down)$/.test(ev.key) ? i + 1 : /^Arrow(Left|Up)$/.test(ev.key) ? i - 1 : -1;
       if (j < 0 || j >= menu.length) return;
       ev.preventDefault(); menu[j].focus(); pilihTab(menu[j].getAttribute("data-tab"), true);
     });
