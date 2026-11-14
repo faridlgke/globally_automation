@@ -237,6 +237,21 @@
     table:has(td.judul, td.lebar) .s { white-space: normal; }
   }
   /* ==== akhir tampilan HP ==== */
+  /* tambah sumber manual (sql/020) */
+  .dua { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dua { margin-top: 32px; gap: 40px 28px; }
+  .dua > .blok, .dua > .blok + .blok { min-width: 0; margin-top: 0; }
+  .dua + .blok { margin-top: 40px; }
+  input.kode-isian::placeholder { text-transform: none; }
+  .form-stop .baris2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .form-stop .kanan { display: flex; gap: 10px; justify-content: flex-end; align-items: center; flex-wrap: wrap; }
+  .form-stop input[type="file"] { padding: 8px; }
+  .kecil-redup { color: var(--ink-2); font-size: .82rem; margin: 0; }
+  .pratinjau { font-size: .8rem; color: var(--ink-2); max-height: 180px; overflow: auto; border: 1px dashed var(--rule-2); border-radius: 10px; padding: 8px 10px; }
+  .pratinjau:empty { display: none; }
+  .skor-bar { display: inline-block; width: 46px; height: 6px; border-radius: 3px; background: var(--rule-2); vertical-align: middle; margin-right: 6px; overflow: hidden; }
+  .skor-bar i { display: block; height: 100%; background: var(--accent); }
+  @media (max-width: 760px) { .dua, .form-stop .baris2 { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -249,7 +264,7 @@
 <div class="wrap">
   <div class="kepala">
     <h1>Alur beasiswa, dari penemuan sampai terbit</h1>
-    <div class="meta"><span id="dimuat">memuat…</span><a class="utama" href="https://docs.google.com/spreadsheets/d/1Y2gUiDLCtAmLNHjMZv-D6yh9f6BvADZLKvkoH5r8I3E/edit" target="_blank" rel="noopener" style="text-decoration:none">Buka Google Sheet ↗</a><button id="unduh" type="button" class="ghost">Unduh Excel</button><button id="muat-ulang" type="button" class="ghost">Muat ulang</button><button id="tombol-admin" type="button" class="ghost">Masuk admin</button><button id="keluar-web" type="button" class="ghost">Keluar</button></div>
+    <div class="meta"><span id="dimuat">memuat…</span><a class="utama" href="https://docs.google.com/spreadsheets/d/1Y2gUiDLCtAmLNHjMZv-D6yh9f6BvADZLKvkoH5r8I3E/edit" target="_blank" rel="noopener" style="text-decoration:none">Buka Google Sheet ↗</a><button id="buka-tambah" type="button" class="ghost">Tambah sumber</button><button id="unduh" type="button" class="ghost">Unduh Excel</button><button id="muat-ulang" type="button" class="ghost">Muat ulang</button><button id="tombol-admin" type="button" class="ghost">Masuk admin</button><button id="keluar-web" type="button" class="ghost">Keluar</button></div>
   </div>
 
   <p class="petunjuk">Klik angka di tiap tahap untuk membuka rinciannya di bawah.</p>
@@ -309,6 +324,14 @@
       <div id="admin-qc"></div>
       <div class="aksi"><span class="n" id="n-qc">–</span></div>
       <div class="scroll"><table><thead><tr><th>Beasiswa</th><th>Negara</th><th>Jenjang</th><th>Deadline</th><th>Status</th><th>Layak ID</th><th>QC</th><th class="num">Bukti</th><th>Sumber</th><th>Cek tim</th></tr></thead><tbody id="t-qc"><tr><td colspan="10" class="state">memuat…</td></tr></tbody></table></div>
+    </div>
+    <div class="blok" id="blok-kualitas" hidden>
+      <h3>Kualitas data <span>skor terendah dulu: kolom yang terisi dari halaman resmi, halaman salah, dan saran tindakan</span></h3>
+      <div class="alat">
+        <select id="f-kual"><option value="">Semua</option><option value="salah">Halaman salah</option><option value="wajib">Kolom wajib kosong</option><option value="gagal">Situs menolak bot</option><option value="curiga">Ada kata kunci tapi kosong</option></select>
+        <span class="n redup" id="n-kual" style="font-size: .84rem"></span>
+      </div>
+      <div class="scroll"><table><thead><tr><th>Skor</th><th>Beasiswa</th><th class="num">Halaman</th><th class="num">PDF</th><th>Kolom wajib kosong</th><th>Saran</th><th></th></tr></thead><tbody id="t-kual"><tr><td colspan="7" class="state">memuat…</td></tr></tbody></table></div>
     </div>
     <div class="blok" id="blok-catatan" hidden>
       <h3>Catatan algoritma <span>feedback STOP, diolah jadi aturan cek kualitas dan contoh untuk model</span></h3>
@@ -374,6 +397,71 @@
     </dialog>
   </section>
 
+  <section class="lembar" id="p-tambah" role="tabpanel" hidden>
+    <div class="blok">
+      <h3>Tambah sumber beasiswa <span>khusus admin. Masuk antrean, diproses otomatis di server tiap 10 menit</span></h3>
+      <p class="lead" style="margin-top: 0">Tempel tautan halaman resmi atau artikel berita (sistem mencari tautan resmi penyelenggaranya), isi form untuk info dari poster atau grup, unggah Excel/CSV untuk banyak sekaligus, atau unggah PDF panduan kalau situsnya menolak bot. Hasilnya muncul di tab QC dan perlu ACC seperti baris lain.</p>
+      <div id="tambah-kunci"></div>
+    </div>
+    <div class="dua" id="tambah-isi" hidden>
+      <div class="blok">
+        <h3>Tempel tautan</h3>
+        <form class="form-stop" id="f-tautan" style="margin-top: 0">
+          <label>Tautan, satu per baris<textarea id="tautan-isi" required placeholder="https://www.daad.de/en/study-and-research-in-germany/scholarships/...&#10;https://contoh-berita.com/beasiswa-baru-2027"></textarea></label>
+          <label>Tambahkan ke beasiswa yang sudah ada (opsional)<input id="tautan-kode" class="kode-isian" maxlength="6" placeholder="kode, contoh GL3A1Z"></label>
+          <div class="kanan"><span class="kecil-redup" id="tautan-pesan"></span><button type="submit" class="utama">Masukkan antrean</button></div>
+        </form>
+      </div>
+      <div class="blok">
+        <h3>Unggah PDF</h3>
+        <form class="form-stop" id="f-pdf" style="margin-top: 0">
+          <label>Berkas PDF (maks 25 MB)<input type="file" id="pdf-berkas" accept="application/pdf" required></label>
+          <div class="baris2">
+            <label>Kode beasiswa (opsional)<input id="pdf-kode" class="kode-isian" maxlength="6" placeholder="GL3A1Z"></label>
+            <label>Nama beasiswa (opsional)<input id="pdf-nama" maxlength="300" placeholder="kalau beasiswa baru"></label>
+          </div>
+          <p class="kecil-redup">Tanpa kode, sistem mengenali beasiswanya dari isi PDF. PDF hasil pindaian dibaca dengan OCR.</p>
+          <div class="kanan"><span class="kecil-redup" id="pdf-pesan"></span><button type="submit" class="utama">Unggah dan proses</button></div>
+        </form>
+      </div>
+      <div class="blok">
+        <h3>Isi form</h3>
+        <form class="form-stop" id="f-form" style="margin-top: 0">
+          <label>Nama beasiswa<input id="fm-nama" maxlength="300" required></label>
+          <div class="baris2">
+            <label>Penyelenggara<input id="fm-penyelenggara" maxlength="300"></label>
+            <label>Negara tujuan<input id="fm-negara" maxlength="120" placeholder="Japan, Australia, Multi"></label>
+          </div>
+          <label>Tautan resmi (kalau ada, sistem akan memverifikasi isian di bawah)<input id="fm-tautan" type="url" placeholder="https://"></label>
+          <div class="baris2">
+            <label>Deadline<input id="fm-deadline_teks" maxlength="300" placeholder="15 Januari 2027"></label>
+            <label>Jenjang<input id="fm-jenjang" maxlength="200" placeholder="S2, S3"></label>
+          </div>
+          <div class="baris2">
+            <label>Pendanaan<input id="fm-jenis_pendanaan" maxlength="300" placeholder="Fully funded"></label>
+            <label>Kewarganegaraan<input id="fm-kewarganegaraan" maxlength="500" placeholder="Semua negara berkembang"></label>
+          </div>
+          <label>Syarat dan manfaat lain<textarea id="fm-manfaat_lain" maxlength="3000" style="min-height: 80px" placeholder="IPK, bahasa, tunjangan, apa pun yang diketahui"></textarea></label>
+          <label>Catatan sumber<input id="fm-catatan" maxlength="2000" placeholder="contoh: poster dari grup WA alumni, 12 Nov"></label>
+          <div class="kanan"><span class="kecil-redup" id="form-pesan"></span><button type="submit" class="utama">Masukkan antrean</button></div>
+        </form>
+      </div>
+      <div class="blok">
+        <h3>Unggah Excel atau CSV</h3>
+        <form class="form-stop" id="f-excel" style="margin-top: 0">
+          <label>Berkas .xlsx, .xls, atau .csv<input type="file" id="excel-berkas" accept=".xlsx,.xls,.csv" required></label>
+          <p class="kecil-redup">Baris judul dikenali otomatis: nama atau Scholarship Name, penyelenggara atau Provider, negara atau Country, tautan atau Official Link, plus semua kolom Excel FYGO. Paling banyak 500 baris sekali kirim.</p>
+          <div class="pratinjau" id="excel-pratinjau"></div>
+          <div class="kanan"><span class="kecil-redup" id="excel-pesan"></span><button type="submit" class="utama" id="excel-kirim" disabled>Kirim</button></div>
+        </form>
+      </div>
+    </div>
+    <div class="blok" id="blok-antrean" hidden>
+      <h3>Antrean masukan <span>300 terakhir, diperbarui tiap 30 detik saat tab ini terbuka</span></h3>
+      <div class="scroll"><table><thead><tr><th>Waktu</th><th>Jenis</th><th>Isi</th><th>Status</th><th>Hasil</th><th>Keterangan</th></tr></thead><tbody id="t-antrean"><tr><td colspan="6" class="state">memuat…</td></tr></tbody></table></div>
+    </div>
+  </section>
+
   <section class="lembar" id="p-terbit" role="tabpanel" hidden>
     <div class="blok">
       <h3>Terbit <span>belum hidup</span></h3>
@@ -388,7 +476,7 @@
 (function () {
   var URL_ = "https://idezvrptuhqkwkwaonzq.supabase.co/rest/v1/";
   var KEY = "sb_publishable_Hm0-sGWlq_XwDXtHHCT5JA_n6_jhg0a";
-  var TAHAP = ["kandidat", "halaman", "qc", "deadline", "desain", "terbit"];
+  var TAHAP = ["kandidat", "halaman", "qc", "deadline", "desain", "terbit", "tambah"];
   var NAMA_SUMBER = { "feed:scholars4dev": "Scholars4Dev", "feed:oppdesk": "Opportunity Desk", "feed:profellow": "ProFellow", "feed:indbeasiswa": "INDBeasiswa",
     "feed:beasiswa_id": "Beasiswa.id", "feed:scholarshipscorner": "Scholarships Corner", "feed:eacea": "Katalog Erasmus Mundus", "gnews:gn_beasiswa_ln": "Google News: beasiswa luar negeri",
     "gnews:gn_scholarship_id": "Google News: scholarship Indonesia", "gnews:gn_beasiswa_my": "Google News: beasiswa Malaysia", "kiv": "Sheet KIV Excel", "excel": "Excel benih", "manual": "Manual" };
@@ -779,10 +867,156 @@
       // yang sudah lolos di atas, lalu perlu cek, lalu sisanya, supaya baris yang berguna tidak tenggelam
       var urut = { terbit: 0, lolos: 1, perlu_cek: 2, ditolak: 3, impor: 4 };
       rows.sort(function (a, b) { return (urut[a.status_qc] - urut[b.status_qc]) || String(a.negara).localeCompare(String(b.negara)) || String(a.nama).localeCompare(String(b.nama)); });
-      PUBLIK = false; el("admin-qc").innerHTML = ""; DATA = rows; isiNegara(); gambarQc(); gambarDeadline(); muatCatatan();
+      PUBLIK = false; el("admin-qc").innerHTML = ""; DATA = rows; isiNegara(); gambarQc(); gambarDeadline(); muatCatatan(); muatKualitas();
       var m = (location.hash || "").match(/^#qc\/(GL[A-Z0-9]{4})$/); if (m) { pilihTab("qc", false); bukaRinci(m[1]); }
     }).catch(function (e) { el("t-qc").innerHTML = '<tr><td colspan="10" class="state err">' + esc(pesanGalat(e, "gl_ekspor_baris")) + "</td></tr>"; });
   }
+
+  // ===== Tambah sumber manual dan kualitas data (sql/020, 14 Nov 2026) =====
+  var ST_MASUK = { antre: ["warn", "antre"], proses: ["biru", "diproses"], selesai: ["ok", "selesai"], ganda: ["ok", "sudah ada"], gagal: ["bad", "gagal"] };
+  var JENIS_MASUK = { tautan: "tautan", form: "form", excel: "Excel", pdf: "PDF" };
+  function kunciTambah() {
+    if (SESI) return false;
+    el("tambah-kunci").innerHTML = formAdmin(); pasangFormAdmin(); return true;
+  }
+  function pesan(id, teks, salah) { var s = el(id); s.textContent = teks; s.style.color = salah ? "var(--bad)" : ""; }
+  function kirimMasukan(baris, idPesan, form) {
+    pesan(idPesan, "mengirim…");
+    return kirim("gl_masukan_tambah", { p_baris: baris }).then(function (r) {
+      pesan(idPesan, r.masuk + " masuk antrean. Hasilnya muncul di tabel di bawah dalam 10 sampai 20 menit.");
+      if (form) form.reset();
+      muatAntrean();
+    }).catch(function (e) { pesan(idPesan, /PGRST202|42883|gl_masukan/.test(e.message) ? "Fungsi belum ada, jalankan sql/020_gl_masukan.sql." : "Gagal: " + e.message, true); });
+  }
+  function muatAntrean() {
+    if (!SESI) return;
+    el("blok-antrean").hidden = false;
+    ambil("gl_masukan_daftar?select=*").then(function (rows) {
+      var tb = el("t-antrean");
+      if (!rows.length) { tb.innerHTML = '<tr><td colspan="6" class="state">Belum ada masukan.</td></tr>'; return; }
+      tb.innerHTML = rows.map(function (r) {
+        var hasil = r.hasil_kode ? '<a href="#qc/' + esc(r.hasil_kode) + '" data-buka="' + esc(r.hasil_kode) + '"><span class="kode">' + esc(r.hasil_kode) + "</span></a>" : "–";
+        return '<tr><td class="redup">' + fmtWib(r.at_wib) + "</td><td>" + esc(JENIS_MASUK[r.jenis] || r.jenis) + '</td><td class="lebar" style="word-break: break-all">' + esc(r.isi || "") + (r.kode ? ' <span class="redup">ke ' + esc(r.kode) + "</span>" : "") + "</td><td>" + status(ST_MASUK, r.status) + "</td><td>" + hasil + '</td><td class="lebar redup">' + esc(r.pesan || "") + "</td></tr>";
+      }).join("");
+      tb.querySelectorAll("a[data-buka]").forEach(function (a) { a.addEventListener("click", function (ev) { ev.preventDefault(); pilihTab("qc", true); bukaRinci(a.getAttribute("data-buka")); }); });
+    }).catch(function (e) { el("t-antrean").innerHTML = '<tr><td colspan="6" class="state err">' + esc(/PGRST205|42P01/.test(e.message) ? "Antrean belum dibuat, jalankan sql/020_gl_masukan.sql." : "Gagal memuat: " + e.message) + "</td></tr>"; });
+  }
+  function siapkanTambah() {
+    SIAP.then(function () {
+      if (kunciTambah()) return;
+      el("tambah-isi").hidden = false; muatAntrean();
+    });
+  }
+  el("buka-tambah").addEventListener("click", function () { pilihTab("tambah", true); siapkanTambah(); });
+  setInterval(function () { if (!document.hidden && !el("p-tambah").hidden && SESI) muatAntrean(); }, 30000);
+
+  el("f-tautan").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var kode = el("tautan-kode").value.trim().toUpperCase();
+    var daftar = el("tautan-isi").value.split(/\s+/).map(function (s) { return s.trim(); }).filter(function (s) { return /^(https?:\/\/)?[\w-]+(\.[\w-]+)+/.test(s); });
+    if (!daftar.length) { pesan("tautan-pesan", "Tidak ada tautan yang dikenali.", true); return; }
+    kirimMasukan(daftar.map(function (u) { return { jenis: "tautan", tautan: u, kode: kode || null }; }), "tautan-pesan", el("f-tautan"));
+  });
+
+  el("f-form").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var data = {};
+    ["deadline_teks", "jenjang", "jenis_pendanaan", "kewarganegaraan", "manfaat_lain"].forEach(function (k) { var v = el("fm-" + k).value.trim(); if (v) data[k] = v; });
+    var jj = (data.jenjang || "").toUpperCase().match(/S1|S2|S3|POSTDOC|NONDEGREE|SHORT/g);
+    if (jj) data.jenjang_kode = jj;
+    kirimMasukan([{ jenis: "form", nama: el("fm-nama").value, penyelenggara: el("fm-penyelenggara").value, negara: el("fm-negara").value,
+      tautan: el("fm-tautan").value || null, catatan: el("fm-catatan").value, data: data }], "form-pesan", el("f-form"));
+  });
+
+  el("f-pdf").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var f = el("pdf-berkas").files[0]; if (!f) return;
+    if (f.size > 25 * 1024 * 1024) { pesan("pdf-pesan", "Berkas lebih dari 25 MB.", true); return; }
+    var path = new Date().toISOString().slice(0, 10) + "/" + Date.now() + "-" + f.name.replace(/[^\w.-]+/g, "_").slice(-80);
+    pesan("pdf-pesan", "mengunggah…");
+    SB.storage.from("gl-masukan").upload(path, f, { contentType: "application/pdf", upsert: false }).then(function (r) {
+      if (r.error) { pesan("pdf-pesan", "Unggah gagal: " + r.error.message + (/bucket/i.test(r.error.message) ? " (jalankan sql/020)" : ""), true); return; }
+      kirimMasukan([{ jenis: "pdf", berkas: path, kode: el("pdf-kode").value.trim().toUpperCase() || null, nama: el("pdf-nama").value || null }], "pdf-pesan", el("f-pdf"));
+    });
+  });
+
+  // Excel/CSV: judul kolom dicocokkan dengan 28 kolom Excel FYGO plus nama umum
+  var ALIAS = { nama: ["nama", "name", "scholarship", "scholarship name", "nama beasiswa", "judul"], penyelenggara: ["penyelenggara", "provider", "pemberi", "university", "kampus", "organisasi"],
+    negara: ["negara", "country", "negara tujuan", "destination"], tautan_resmi: ["tautan", "link", "url", "official link", "tautan resmi", "website"], catatan: ["catatan", "notes", "keterangan"] };
+  function normal(s) { return String(s || "").toLowerCase().replace(/^\s*\d+\.\s*/, "").replace(/[^a-z0-9]+/g, " ").trim(); }
+  var PETA_JUDUL = {};
+  KOLOM.forEach(function (k) { PETA_JUDUL[normal(k[0])] = k[1]; });
+  Object.keys(ALIAS).forEach(function (db) { ALIAS[db].forEach(function (a) { PETA_JUDUL[normal(a)] = db; }); });
+  var BARIS_EXCEL = [];
+  el("excel-berkas").addEventListener("change", function () {
+    var f = el("excel-berkas").files[0]; BARIS_EXCEL = []; el("excel-kirim").disabled = true; el("excel-pratinjau").textContent = "";
+    if (!f) return;
+    f.arrayBuffer().then(function (buf) {
+      var wb = XLSX.read(buf, { type: "array" });
+      var ws = wb.Sheets[wb.SheetNames.indexOf("Scholarship") >= 0 ? "Scholarship" : wb.SheetNames[0]];
+      var mentah = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "", raw: false });
+      // baris judul: baris pertama (dari 10 teratas) yang memuat kolom nama
+      var iJ = -1, peta = [];
+      for (var i = 0; i < Math.min(10, mentah.length) && iJ < 0; i++) {
+        var p = mentah[i].map(function (h) { return PETA_JUDUL[normal(h)] || null; });
+        if (p.indexOf("nama") >= 0) { iJ = i; peta = p; }
+      }
+      if (iJ < 0) { pesan("excel-pesan", "Kolom nama beasiswa tidak ditemukan di 10 baris pertama.", true); return; }
+      mentah.slice(iJ + 1).forEach(function (row) {
+        var o = { jenis: "excel", data: {} };
+        peta.forEach(function (db, j) {
+          var v = String(row[j] == null ? "" : row[j]).trim(); if (!db || !v) return;
+          if (db === "nama" || db === "penyelenggara" || db === "negara" || db === "catatan") o[db] = v;
+          else if (db === "tautan_resmi") o.tautan = v;
+          else o.data[db] = v;
+        });
+        if (o.nama || o.tautan) BARIS_EXCEL.push(o);
+      });
+      var dikenal = peta.filter(Boolean);
+      el("excel-pratinjau").innerHTML = "<b>" + BARIS_EXCEL.length + " baris</b>, kolom dikenali: " + esc(dikenal.join(", ")) + "<br>" +
+        BARIS_EXCEL.slice(0, 6).map(function (o) { return esc((o.nama || "(tanpa nama)") + " · " + (o.negara || "–") + " · " + (o.tautan || "tanpa tautan")); }).join("<br>");
+      if (BARIS_EXCEL.length > 500) { pesan("excel-pesan", "Lebih dari 500 baris, pecah berkasnya dulu.", true); return; }
+      el("excel-kirim").disabled = !BARIS_EXCEL.length; pesan("excel-pesan", "");
+    }).catch(function (e) { pesan("excel-pesan", "Berkas tidak terbaca: " + e.message, true); });
+  });
+  el("f-excel").addEventListener("submit", function (ev) {
+    ev.preventDefault(); if (!BARIS_EXCEL.length) return;
+    el("excel-kirim").disabled = true;
+    kirimMasukan(BARIS_EXCEL, "excel-pesan", el("f-excel")).then(function () { BARIS_EXCEL = []; el("excel-pratinjau").textContent = ""; });
+  });
+
+  // ----- kualitas data di tab QC
+  var KUAL = [];
+  var NAMA_KOLOM = { jenjang: "jenjang", kewarganegaraan: "kewarganegaraan", cakupan_kuliah: "cakupan kuliah", deadline_teks: "deadline" };
+  function gambarKualitas() {
+    var f = el("f-kual").value;
+    var rows = KUAL.filter(function (r) {
+      var l = r.laporan_data || {};
+      return !f || (f === "salah" && l.halaman_salah) || (f === "wajib" && (l.wajib_kosong || []).length) || (f === "gagal" && (l.gagal || []).length) || (f === "curiga" && (l.curiga || []).length);
+    });
+    el("n-kual").textContent = rows.length + " beasiswa";
+    var tb = el("t-kual");
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="7" class="state">Tidak ada.</td></tr>'; return; }
+    tb.innerHTML = rows.map(function (r) {
+      var l = r.laporan_data || {};
+      return '<tr><td class="num" style="white-space: nowrap"><span class="skor-bar"><i style="width: ' + (l.skor || 0) + '%"></i></span>' + (l.skor == null ? "–" : l.skor) + '</td><td class="judul"><button type="button" data-kode="' + esc(r.kode) + '">' + esc(r.nama) + '</button><span class="r"><span class="kode">' + esc(r.kode) + "</span> " + esc(r.negara || "") + "</span></td>" +
+        '<td class="num">' + (l.halaman == null ? "–" : l.halaman) + '</td><td class="num">' + (l.pdf || 0) + (l.unggahan ? " +" + l.unggahan : "") + "</td><td>" + esc((l.wajib_kosong || []).map(function (k) { return NAMA_KOLOM[k] || k; }).join(", ") || "–") + '</td><td class="lebar redup">' + esc(l.saran || "") + '</td><td><button type="button" class="ghost" data-tambah="' + esc(r.kode) + '">Tambah sumber</button></td></tr>';
+    }).join("");
+    potong(tb);
+    tb.querySelectorAll("button[data-kode]").forEach(function (b) { b.addEventListener("click", function () { bukaRinci(b.getAttribute("data-kode")); }); });
+    tb.querySelectorAll("button[data-tambah]").forEach(function (b) { b.addEventListener("click", function () {
+      pilihTab("tambah", true); siapkanTambah();
+      el("tautan-kode").value = el("pdf-kode").value = b.getAttribute("data-tambah"); el("tautan-isi").focus();
+    }); });
+  }
+  function muatKualitas() {
+    if (PUBLIK || !SESI) return;
+    el("blok-kualitas").hidden = false;
+    ambil("gl_kualitas_data?select=kode,nama,negara,status_qc,laporan_data&limit=1000").then(function (rows) { KUAL = rows; gambarKualitas(); })
+      .catch(function (e) { el("t-kual").innerHTML = '<tr><td colspan="7" class="state err">' + esc(/PGRST205|42P01/.test(e.message) ? "View gl_kualitas_data belum dibuat, jalankan sql/020_gl_masukan.sql." : "Gagal memuat: " + e.message) + "</td></tr>"; });
+  }
+  el("f-kual").addEventListener("change", gambarKualitas);
+  if ((location.hash || "") === "#tambah") siapkanTambah();
   el("muat-ulang").addEventListener("click", muat);
 
   // denyut: LIVE kalau ekstraksi terakhir kurang dari 26 jam, hitung mundur ke ekstraksi berikutnya.
