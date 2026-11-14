@@ -300,7 +300,8 @@
   .sisi .hitung b { color: var(--ink); }
   .sisi .live { font-size: .66rem; padding: 3px 9px 3px 8px; }
   .akun { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
-  #akun-email { word-break: break-all; }
+  .sisi #hitung-label, .sisi #dimuat, .sisi #akun-email { display: none; }
+  .sisi .denyut { flex-direction: row !important; align-items: center !important; gap: 8px !important; }
   .wrap { margin-left: 228px; max-width: none; padding: 0 40px 72px; }
   .wrap > * { max-width: 1160px; }
   .wrap > .lembar { margin-top: 34px; border-top: 0; padding-top: 0; }
@@ -1142,7 +1143,8 @@
   isiDenyut();
   setInterval(function () { if (!document.hidden) isiDenyut(); }, 1000);
   // satu akun: email admin tampil di kanan atas, Keluar menutup sesi situs dan Supabase sekaligus
-  SIAP.then(function () { if (SESI) el("akun-email").textContent = SESI.user.email; });
+  SIAP.then(function () { if (SESI) { el("akun-email").textContent = SESI.user.email; el("keluar-web").title = "Keluar dari " + SESI.user.email; } });
+  el("live").parentNode.title = "Ekstraksi berikutnya pukul 03.00 WIB";
   muat();
 })();
 </script>
