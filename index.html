@@ -260,90 +260,78 @@
   .skor-bar { display: inline-block; width: 46px; height: 6px; border-radius: 3px; background: var(--rule-2); vertical-align: middle; margin-right: 6px; overflow: hidden; }
   .skor-bar i { display: block; height: 100%; background: var(--accent); }
   @media (max-width: 760px) { .form-stop .baris2 { grid-template-columns: 1fr; } .baris-kirim .utama { margin-left: 0; } }
+  /* struktur baru 14 Nov 2026: bilah atas ringkas + menu kerja; alur sungai hanya di Sosmed */
+  .bar { position: sticky; top: 0; z-index: 20; background: var(--bg); border-bottom: 1px solid var(--rule); }
+  .bar-isi { max-width: 1120px; margin: 0 auto; padding: 12px 20px 0; display: flex; align-items: center; gap: 10px 22px; flex-wrap: wrap; }
+  .merek { display: flex; align-items: baseline; gap: 10px; color: var(--ink); text-decoration: none; }
+  .merek b { font-family: var(--judul); font-weight: 800; font-size: 1.35rem; letter-spacing: -0.02em; }
+  .merek span { font-size: .82rem; color: var(--ink-2); }
+  .bar .denyut { margin: 0; font-size: .8rem; color: var(--ink-2); justify-content: flex-start; }
+  .bar .hitung b { color: var(--ink); font-size: .84rem; }
+  .bar .live { font-size: .68rem; padding: 3px 9px 3px 8px; }
+  .akun { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: .8rem; }
+  .menu { max-width: 1120px; margin: 0 auto; padding: 6px 20px 0; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+  .menu::-webkit-scrollbar { display: none; }
+  .menu button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 10px 14px 11px; font-size: .92rem; font-weight: 600; color: var(--ink-2); white-space: nowrap; border-radius: 0; }
+  .menu button:hover { color: var(--ink); }
+  .menu button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+  .wrap > .lembar:first-of-type, .wrap > .lembar { margin-top: 28px; border-top: 0; padding-top: 0; }
+  .ekspor { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-lain { display: contents; }
+  .filter-lain[hidden] { display: none; }
+  .alat .tautan-kecil { font-size: .84rem; }
+  a.ghost { text-decoration: none; display: inline-block; }
+  .redup { color: var(--ink-2); }
+  @media (max-width: 760px) {
+    .bar .denyut, #dimuat { display: none; }
+    .bar-isi { flex-wrap: nowrap; }
+    .akun .ghost { padding: 5px 10px; font-size: .76rem; }
+    .akun { flex-wrap: nowrap; } .merek span { display: none; }
+    .menu { padding: 2px 8px 0; }
+    .menu button { padding: 10px 10px 11px; font-size: .88rem; }
+  }
 </style>
 </head>
 <body>
-<header class="tajuk" aria-label="FYGO">
-  <p class="nama">FYGO</p>
-  <p class="sub">Basis data beasiswa</p>
-  <p class="denyut" aria-live="off"><span class="live" id="live"><i aria-hidden="true"></i><b id="live-teks">LIVE</b></span><span class="hitung"><span id="hitung-label">memuat jadwal…</span> <b id="hitung-sisa"></b></span></p>
+<header class="bar">
+  <div class="bar-isi">
+    <a class="merek" href="#database"><b>FYGO</b><span>Database beasiswa</span></a>
+    <p class="denyut" aria-live="off"><span class="live" id="live"><i aria-hidden="true"></i><b id="live-teks">LIVE</b></span><span class="hitung"><span id="hitung-label">memuat jadwal…</span> <b id="hitung-sisa"></b></span></p>
+    <div class="akun"><span id="dimuat" class="redup"></span><button id="tombol-admin" type="button" class="ghost">Masuk admin</button><button id="keluar-web" type="button" class="ghost">Keluar</button></div>
+  </div>
+  <nav class="menu" role="tablist" aria-label="Menu">
+    <button role="tab" data-tab="database" aria-selected="true">Database</button>
+    <button role="tab" data-tab="tambah">Tambah data</button>
+    <button role="tab" data-tab="cek">Perlu dicek</button>
+    <button role="tab" data-tab="pantau">Pantauan</button>
+    <button role="tab" data-tab="sosmed">Sosmed</button>
+  </nav>
 </header>
 
 <div class="wrap">
-  <div class="kepala">
-    <h1>Alur beasiswa, dari penemuan sampai terbit</h1>
-    <div class="meta"><span id="dimuat">memuat…</span><a class="utama" href="https://docs.google.com/spreadsheets/d/1Y2gUiDLCtAmLNHjMZv-D6yh9f6BvADZLKvkoH5r8I3E/edit" target="_blank" rel="noopener" style="text-decoration:none">Buka Google Sheet ↗</a><button id="buka-tambah" type="button" class="ghost">Tambah sumber</button><button id="unduh" type="button" class="ghost">Unduh Excel</button><button id="muat-ulang" type="button" class="ghost">Muat ulang</button><button id="tombol-admin" type="button" class="ghost">Masuk admin</button><button id="keluar-web" type="button" class="ghost">Keluar</button></div>
-  </div>
-
-  <p class="petunjuk">Klik angka di tiap tahap untuk membuka rinciannya di bawah.</p>
-  <nav class="sungai" role="tablist" aria-label="Tahap">
-    <div class="garis" aria-hidden="true"><span class="mati"></span><span class="hidup"></span></div>
-    <button class="st" role="tab" data-tab="kandidat" aria-selected="true"><span class="ang" id="c1">–</span><span class="nm">Kandidat</span><span class="titik"></span><span class="ket" id="k1">penemuan</span></button>
-    <button class="st" role="tab" data-tab="halaman"><span class="ang" id="c2">–</span><span class="nm">Halaman resmi</span><span class="titik"></span><span class="ket" id="k2">pemantauan</span></button>
-    <button class="st" role="tab" data-tab="qc"><span class="ang" id="c3">–</span><span class="nm">QC</span><span class="titik"></span><span class="ket" id="k3">ekstraksi berbukti</span></button>
-    <button class="st" role="tab" data-tab="deadline"><span class="ang" id="c4">–</span><span class="nm">Deadline</span><span class="titik"></span><span class="ket" id="k4">30 hari</span></button>
-    <button class="st" role="tab" data-tab="desain"><span class="ang" id="c5">–</span><span class="nm">Desain</span><span class="titik"></span><span class="ket" id="k5">belum hidup</span></button>
-    <button class="st belum" role="tab" data-tab="terbit"><span class="ang" id="c6">–</span><span class="nm">Terbit</span><span class="titik"></span><span class="ket" id="k6">belum hidup</span></button>
-  </nav>
-
-  <section class="lembar" id="p-kandidat" role="tabpanel">
-    <div class="blok">
-      <div class="skor" id="kartu-kandidat"><div class="state">memuat…</div></div>
-      <p class="lead">Feed, katalog, dan Google News cuma penunjuk. Kandidat masuk basis data hanya kalau tautan resmi penyelenggaranya ketemu, sisanya ditolak dengan alasan.</p>
-    </div>
-    <div class="blok">
-      <h3>Per sumber penemuan <span>tujuh hari terakhir, paling ramai dulu</span></h3>
-      <div class="scroll"><table><thead><tr><th>Sumber</th><th class="num">7 hari</th><th class="num">Total</th><th class="num">Diriset</th><th class="num">Ditolak</th><th class="num">Gabung</th><th class="num">Baru</th><th>Terakhir</th></tr></thead><tbody id="t-denyut"><tr><td colspan="8" class="state">memuat…</td></tr></tbody></table></div>
-    </div>
-    <div class="blok">
-      <h3>Kandidat terbaru <span>120 terakhir, terbaru dulu</span></h3>
-      <div class="scroll"><table><thead><tr><th>Ditemukan</th><th>Judul dan sumber</th><th>Status</th><th>Alasan</th></tr></thead><tbody id="t-kandidat"><tr><td colspan="4" class="state">memuat…</td></tr></tbody></table></div>
-    </div>
-  </section>
-
-  <section class="lembar" id="p-halaman" role="tabpanel" hidden>
-    <div class="blok">
-      <div class="skor" id="kartu-halaman"><div class="state">memuat…</div></div>
-      <p class="lead">Tiap beasiswa punya halaman resmi yang dipantau: diambil ulang tiap tujuh hari, tiap hari kalau deadline di bawah 30 hari. Isi yang berubah memicu ekstraksi ulang, dan perubahannya tercatat di sini.</p>
-    </div>
-    <div class="blok">
-      <h3>Perubahan terakhir <span>deadline, status, kelayakan, tautan</span></h3>
-      <div class="scroll"><table><thead><tr><th>Waktu</th><th>Kode</th><th>Beasiswa</th><th>Kolom</th><th>Dari</th><th>Menjadi</th><th>Oleh</th></tr></thead><tbody id="t-log"><tr><td colspan="7" class="state">memuat…</td></tr></tbody></table></div>
-    </div>
-  </section>
-
-  <section class="lembar" id="p-qc" role="tabpanel" hidden>
+  <section class="lembar" id="p-database" role="tabpanel">
     <div class="blok">
       <div class="skor" id="kartu-qc"><div class="state">memuat…</div></div>
-      <p class="lead">28 kolom Excel FYGO diisi dari halaman resmi, tiap kolom fakta membawa kutipan bukti. Kolom yang halaman resmi tidak sebut diisi dari Excel benih dan ditandai belum terverifikasi. Klik nama untuk melihat rinciannya.</p>
+      
     </div>
     <div class="blok">
-      <h3>Basis data <span>lolos dulu, lalu perlu cek</span></h3>
+      <h3>Semua beasiswa <span>lolos dulu, lalu perlu cek. Klik nama untuk rincian dan buktinya</span></h3>
       <div class="alat">
-        <select id="f-asal"><option value="">Semua asal</option><option value="temuan">Temuan baru (feed, Google News)</option><option value="excel">Benih Excel dan KIV</option></select>
-        <select id="f-qc"><option value="">Semua status QC</option><option value="lolos">Lolos</option><option value="perlu_cek">Perlu cek</option><option value="terbit">Terbit</option><option value="ditolak">Ditolak</option><option value="impor">Belum diekstraksi</option></select>
-        <select id="f-layak"><option value="">Semua kelayakan</option><option value="layak">Layak</option><option value="perlu_cek">Perlu cek</option><option value="tidak">Tidak layak</option></select>
+        <input id="f-cari" type="search" placeholder="Cari nama atau penyelenggara…" aria-label="Cari">
         <select id="f-negara"><option value="">Semua negara</option></select>
         <select id="f-jenjang"><option value="">Semua jenjang</option><option value="S1">S1</option><option value="S2">S2</option><option value="S3">S3</option><option value="POSTDOC">PostDoc</option></select>
-        <select id="f-tim" hidden><option value="">Semua cek tim</option><option value="belum">Belum dicek tim</option><option value="acc">ACC</option><option value="stop">STOP</option></select>
         <select id="f-buka"><option value="">Semua status</option><option value="Open">Open</option><option value="Open Soon">Open Soon</option><option value="Closed">Closed</option><option value="TBC">TBC</option></select>
-        <input id="f-cari" type="search" placeholder="Cari nama atau penyelenggara…" aria-label="Cari">
+        <button type="button" class="tautan-kecil" id="buka-filter">Filter lain</button>
+        <span class="filter-lain" id="filter-lain" hidden>
+        <select id="f-qc"><option value="">Semua status QC</option><option value="lolos">Lolos</option><option value="perlu_cek">Perlu cek</option><option value="terbit">Terbit</option><option value="ditolak">Ditolak</option><option value="impor">Belum diekstraksi</option></select>
+        <select id="f-layak"><option value="">Semua kelayakan</option><option value="layak">Layak</option><option value="perlu_cek">Perlu cek</option><option value="tidak">Tidak layak</option></select>
+        <select id="f-asal"><option value="">Semua asal</option><option value="temuan">Temuan baru (feed, Google News)</option><option value="excel">Benih Excel dan KIV</option></select>
+        <select id="f-tim" hidden><option value="">Semua cek tim</option><option value="belum">Belum dicek tim</option><option value="acc">ACC</option><option value="stop">STOP</option></select>
+        </span>
       </div>
       <div id="admin-qc"></div>
-      <div class="aksi"><span class="n" id="n-qc">–</span></div>
+      <div class="aksi"><span class="n" id="n-qc">–</span><span class="ekspor"><button id="unduh" type="button" class="ghost">Unduh Excel</button><a class="ghost" href="https://docs.google.com/spreadsheets/d/1Y2gUiDLCtAmLNHjMZv-D6yh9f6BvADZLKvkoH5r8I3E/edit" target="_blank" rel="noopener">Google Sheet ↗</a></span></div>
       <div class="scroll"><table><thead><tr><th>Beasiswa</th><th>Negara</th><th>Jenjang</th><th>Deadline</th><th>Status</th><th>Layak ID</th><th>QC</th><th class="num">Bukti</th><th>Sumber</th><th>Cek tim</th></tr></thead><tbody id="t-qc"><tr><td colspan="10" class="state">memuat…</td></tr></tbody></table></div>
-    </div>
-    <div class="blok" id="blok-kualitas" hidden>
-      <h3>Kualitas data <span>skor terendah dulu: kolom yang terisi dari halaman resmi, halaman salah, dan saran tindakan</span></h3>
-      <div class="alat">
-        <select id="f-kual"><option value="">Semua</option><option value="salah">Halaman salah</option><option value="wajib">Kolom wajib kosong</option><option value="gagal">Situs menolak bot</option><option value="curiga">Ada kata kunci tapi kosong</option></select>
-        <span class="n redup" id="n-kual" style="font-size: .84rem"></span>
-      </div>
-      <div class="scroll"><table><thead><tr><th>Skor</th><th>Beasiswa</th><th class="num">Halaman</th><th class="num">PDF</th><th>Kolom wajib kosong</th><th>Saran</th><th></th></tr></thead><tbody id="t-kual"><tr><td colspan="7" class="state">memuat…</td></tr></tbody></table></div>
-    </div>
-    <div class="blok" id="blok-catatan" hidden>
-      <h3>Catatan algoritma <span>feedback STOP, diolah jadi aturan cek kualitas dan contoh untuk model</span></h3>
-      <div class="scroll"><table><thead><tr><th>Waktu</th><th>Beasiswa</th><th>Bagian</th><th>Feedback</th><th>Oleh</th><th>Diolah</th></tr></thead><tbody id="t-catatan"><tr><td colspan="6" class="state">memuat…</td></tr></tbody></table></div>
     </div>
     <dialog class="lihat kecil" id="stop-d" aria-labelledby="stop-judul">
       <div class="isi">
@@ -373,34 +361,6 @@
         <div id="lihat-catatan"></div>
         <div class="rinci" id="lihat-rinci"></div>
         <div class="kaki"><button type="button" class="ghost" id="lihat-tutup-2">Tutup</button></div>
-      </div>
-    </dialog>
-  </section>
-
-  <section class="lembar" id="p-deadline" role="tabpanel" hidden>
-    <div class="blok">
-      <h3>Deadline 90 hari ke depan <span>lolos atau masih dicek, terdekat dulu, status dihitung dari tanggal</span></h3>
-      <div class="scroll"><table><thead><tr><th>Deadline</th><th class="num">Hari</th><th>Beasiswa</th><th>Negara</th><th>Jenjang</th><th>Dana</th><th>Layak ID</th><th>QC</th></tr></thead><tbody id="t-deadline"><tr><td colspan="8" class="state">memuat…</td></tr></tbody></table></div>
-    </div>
-  </section>
-
-  <section class="lembar" id="p-desain" role="tabpanel" hidden>
-    <div class="blok">
-      <h3>Desain <span id="j-desain">belum hidup, sosmed FYGO ditahan</span></h3>
-      <p class="lead" style="margin: 0 0 18px">Kiriman Instagram FYGO yang dirakit dari basis data: SCHOLARSHIP RADAR (carousel lima slide) untuk beasiswa yang lolos QC dan sedang buka, DEADLINE WATCH (post tunggal) untuk deadline 14 hari ke depan. Klik untuk melihat semua slide dan caption.</p>
-      <div class="galeri" id="galeri"><div class="state">memuat…</div></div>
-    </div>
-    <dialog class="lihat" id="lihat-k" aria-labelledby="lihat-k-judul">
-      <div class="isi">
-        <button type="button" class="tutup-x" id="lihat-k-tutup" aria-label="Tutup">×</button>
-        <div class="kep"><div><h4 id="lihat-k-judul">–</h4><div class="sub" id="lihat-k-sub"></div></div></div>
-        <div class="slide-strip" id="lihat-k-strip"></div>
-        <div class="caption">
-          <h5>Caption <button type="button" class="ghost" id="salin-caption">Salin caption</button></h5>
-          <pre id="lihat-k-caption"></pre>
-          <div class="ringkas" id="lihat-k-meta"></div>
-        </div>
-        <div class="kaki"><button type="button" class="ghost" id="lihat-k-tutup-2">Tutup</button></div>
       </div>
     </dialog>
   </section>
@@ -442,7 +402,78 @@
     </div>
   </section>
 
-  <section class="lembar" id="p-terbit" role="tabpanel" hidden>
+  <section class="lembar" id="p-cek" role="tabpanel" hidden>
+    <div class="blok" id="cek-kunci"><p class="kosong-lembar" style="padding-top: 0">Bagian ini khusus admin. Klik Masuk admin di kanan atas.</p></div>
+    <div class="blok" id="blok-kualitas" hidden>
+      <h3>Kualitas data <span>skor terendah dulu: kolom yang terisi dari halaman resmi, halaman salah, dan saran tindakan</span></h3>
+      <div class="alat">
+        <select id="f-kual"><option value="">Semua</option><option value="salah">Halaman salah</option><option value="wajib">Kolom wajib kosong</option><option value="gagal">Situs menolak bot</option><option value="curiga">Ada kata kunci tapi kosong</option></select>
+        <span class="n redup" id="n-kual" style="font-size: .84rem"></span>
+      </div>
+      <div class="scroll"><table><thead><tr><th>Skor</th><th>Beasiswa</th><th class="num">Halaman</th><th class="num">PDF</th><th>Kolom wajib kosong</th><th>Saran</th><th></th></tr></thead><tbody id="t-kual"><tr><td colspan="7" class="state">memuat…</td></tr></tbody></table></div>
+    </div>
+    <div class="blok" id="blok-catatan" hidden>
+      <h3>Catatan algoritma <span>feedback STOP, diolah jadi aturan cek kualitas dan contoh untuk model</span></h3>
+      <div class="scroll"><table><thead><tr><th>Waktu</th><th>Beasiswa</th><th>Bagian</th><th>Feedback</th><th>Oleh</th><th>Diolah</th></tr></thead><tbody id="t-catatan"><tr><td colspan="6" class="state">memuat…</td></tr></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="lembar" id="p-pantau" role="tabpanel" hidden>
+    <div class="blok">
+      <h3>Deadline terdekat <span>lolos atau masih dicek, terdekat dulu, status dihitung dari tanggal</span></h3>
+      <div class="scroll"><table><thead><tr><th>Deadline</th><th class="num">Hari</th><th>Beasiswa</th><th>Negara</th><th>Jenjang</th><th>Dana</th><th>Layak ID</th><th>QC</th></tr></thead><tbody id="t-deadline"><tr><td colspan="8" class="state">memuat…</td></tr></tbody></table></div>
+    </div>
+    <div class="blok">
+      <div class="skor" id="kartu-halaman"><div class="state">memuat…</div></div>
+      <p class="lead">Tiap beasiswa punya halaman resmi yang dipantau: diambil ulang tiap tujuh hari, tiap hari kalau deadline di bawah 30 hari. Isi yang berubah memicu ekstraksi ulang, dan perubahannya tercatat di sini.</p>
+    </div>
+    <div class="blok">
+      <h3>Perubahan terakhir <span>deadline, status, kelayakan, tautan</span></h3>
+      <div class="scroll"><table><thead><tr><th>Waktu</th><th>Kode</th><th>Beasiswa</th><th>Kolom</th><th>Dari</th><th>Menjadi</th><th>Oleh</th></tr></thead><tbody id="t-log"><tr><td colspan="7" class="state">memuat…</td></tr></tbody></table></div>
+    </div>
+    <div class="blok">
+      <div class="skor" id="kartu-kandidat"><div class="state">memuat…</div></div>
+      <p class="lead">Feed, katalog, dan Google News cuma penunjuk. Kandidat masuk basis data hanya kalau tautan resmi penyelenggaranya ketemu, sisanya ditolak dengan alasan.</p>
+    </div>
+    <div class="blok">
+      <h3>Per sumber penemuan <span>tujuh hari terakhir, paling ramai dulu</span></h3>
+      <div class="scroll"><table><thead><tr><th>Sumber</th><th class="num">7 hari</th><th class="num">Total</th><th class="num">Diriset</th><th class="num">Ditolak</th><th class="num">Gabung</th><th class="num">Baru</th><th>Terakhir</th></tr></thead><tbody id="t-denyut"><tr><td colspan="8" class="state">memuat…</td></tr></tbody></table></div>
+    </div>
+    <div class="blok">
+      <h3>Kandidat terbaru <span>120 terakhir, terbaru dulu</span></h3>
+      <div class="scroll"><table><thead><tr><th>Ditemukan</th><th>Judul dan sumber</th><th>Status</th><th>Alasan</th></tr></thead><tbody id="t-kandidat"><tr><td colspan="4" class="state">memuat…</td></tr></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="lembar" id="p-sosmed" role="tabpanel" hidden>
+  <p class="petunjuk">Alur otomatis dari penemuan sampai terbit di Instagram. Klik tahap untuk membuka rinciannya.</p>
+  <nav class="sungai" role="tablist" aria-label="Tahap">
+    <div class="garis" aria-hidden="true"><span class="mati"></span><span class="hidup"></span></div>
+    <button class="st" role="tab" data-tab="kandidat" aria-selected="true"><span class="ang" id="c1">–</span><span class="nm">Kandidat</span><span class="titik"></span><span class="ket" id="k1">penemuan</span></button>
+    <button class="st" role="tab" data-tab="halaman"><span class="ang" id="c2">–</span><span class="nm">Halaman resmi</span><span class="titik"></span><span class="ket" id="k2">pemantauan</span></button>
+    <button class="st" role="tab" data-tab="qc"><span class="ang" id="c3">–</span><span class="nm">QC</span><span class="titik"></span><span class="ket" id="k3">ekstraksi berbukti</span></button>
+    <button class="st" role="tab" data-tab="deadline"><span class="ang" id="c4">–</span><span class="nm">Deadline</span><span class="titik"></span><span class="ket" id="k4">30 hari</span></button>
+    <button class="st" role="tab" data-tab="desain"><span class="ang" id="c5">–</span><span class="nm">Desain</span><span class="titik"></span><span class="ket" id="k5">belum hidup</span></button>
+    <button class="st belum" role="tab" data-tab="terbit"><span class="ang" id="c6">–</span><span class="nm">Terbit</span><span class="titik"></span><span class="ket" id="k6">belum hidup</span></button>
+  </nav>
+    <div class="blok" style="margin-top: 40px">
+      <h3>Desain <span id="j-desain">belum hidup, sosmed FYGO ditahan</span></h3>
+      <p class="lead" style="margin: 0 0 18px">Kiriman Instagram FYGO yang dirakit dari basis data: SCHOLARSHIP RADAR (carousel lima slide) untuk beasiswa yang lolos QC dan sedang buka, DEADLINE WATCH (post tunggal) untuk deadline 14 hari ke depan. Klik untuk melihat semua slide dan caption.</p>
+      <div class="galeri" id="galeri"><div class="state">memuat…</div></div>
+    </div>
+    <dialog class="lihat" id="lihat-k" aria-labelledby="lihat-k-judul">
+      <div class="isi">
+        <button type="button" class="tutup-x" id="lihat-k-tutup" aria-label="Tutup">×</button>
+        <div class="kep"><div><h4 id="lihat-k-judul">–</h4><div class="sub" id="lihat-k-sub"></div></div></div>
+        <div class="slide-strip" id="lihat-k-strip"></div>
+        <div class="caption">
+          <h5>Caption <button type="button" class="ghost" id="salin-caption">Salin caption</button></h5>
+          <pre id="lihat-k-caption"></pre>
+          <div class="ringkas" id="lihat-k-meta"></div>
+        </div>
+        <div class="kaki"><button type="button" class="ghost" id="lihat-k-tutup-2">Tutup</button></div>
+      </div>
+    </dialog>
     <div class="blok">
       <h3>Terbit <span>belum hidup</span></h3>
       <p class="kosong-lembar" style="padding-top: 0">Belum ada yang terbit. Sosmed FYGO ditahan atas keputusan pemilik, jadi penerbitan otomatis ke Instagram belum disambungkan.</p>
@@ -456,7 +487,9 @@
 (function () {
   var URL_ = "https://idezvrptuhqkwkwaonzq.supabase.co/rest/v1/";
   var KEY = "sb_publishable_Hm0-sGWlq_XwDXtHHCT5JA_n6_jhg0a";
-  var TAHAP = ["kandidat", "halaman", "qc", "deadline", "desain", "terbit", "tambah"];
+  var TAHAP = ["database", "tambah", "cek", "pantau", "sosmed"];
+  // nama tab lama (tautan #qc/GLXXXX, localStorage) dan tahap sungai di Sosmed dipetakan ke menu baru
+  var PETA_TAB = { qc: "database", kandidat: "pantau", halaman: "pantau", deadline: "pantau", desain: "sosmed", terbit: "sosmed" };
   var NAMA_SUMBER = { "feed:scholars4dev": "Scholars4Dev", "feed:oppdesk": "Opportunity Desk", "feed:profellow": "ProFellow", "feed:indbeasiswa": "INDBeasiswa",
     "feed:beasiswa_id": "Beasiswa.id", "feed:scholarshipscorner": "Scholarships Corner", "feed:eacea": "Katalog Erasmus Mundus", "gnews:gn_beasiswa_ln": "Google News: beasiswa luar negeri",
     "gnews:gn_scholarship_id": "Google News: scholarship Indonesia", "gnews:gn_beasiswa_my": "Google News: beasiswa Malaysia", "kiv": "Sheet KIV Excel", "excel": "Excel benih", "manual": "Manual" };
@@ -551,24 +584,36 @@
   }
 
   function pilihTab(nm, simpan) {
-    if (TAHAP.indexOf(nm) < 0) nm = "kandidat";
-    document.querySelectorAll(".sungai [data-tab]").forEach(function (b) { b.setAttribute("aria-selected", b.getAttribute("data-tab") === nm ? "true" : "false"); });
+    nm = PETA_TAB[nm] || nm;
+    if (TAHAP.indexOf(nm) < 0) nm = "database";
+    document.querySelectorAll(".menu [data-tab]").forEach(function (b) { b.setAttribute("aria-selected", b.getAttribute("data-tab") === nm ? "true" : "false"); });
     document.querySelectorAll(".lembar").forEach(function (p) { p.hidden = p.id !== "p-" + nm; });
     if (simpan) { try { localStorage.setItem("gl-tab", nm); } catch (e) {} if (history.replaceState) history.replaceState(null, "", "#" + nm); }
+    if (nm === "tambah" && typeof siapkanTambah === "function") siapkanTambah();
   }
-  var stasiun = Array.prototype.slice.call(document.querySelectorAll(".sungai [data-tab]"));
-  stasiun.forEach(function (b, i) {
-    b.addEventListener("click", function () { pilihTab(b.getAttribute("data-tab"), true); });
+  var menu = Array.prototype.slice.call(document.querySelectorAll(".menu [data-tab]"));
+  menu.forEach(function (b, i) {
+    b.addEventListener("click", function () { pilihTab(b.getAttribute("data-tab"), true); window.scrollTo(0, 0); });
     b.addEventListener("keydown", function (ev) {
       var j = ev.key === "ArrowRight" ? i + 1 : ev.key === "ArrowLeft" ? i - 1 : -1;
-      if (j < 0 || j >= stasiun.length) return;
-      ev.preventDefault(); stasiun[j].focus(); pilihTab(stasiun[j].getAttribute("data-tab"), true);
+      if (j < 0 || j >= menu.length) return;
+      ev.preventDefault(); menu[j].focus(); pilihTab(menu[j].getAttribute("data-tab"), true);
+    });
+  });
+  // tahap di alur Sosmed membuka menu tempat rinciannya berada
+  var stasiun = Array.prototype.slice.call(document.querySelectorAll(".sungai [data-tab]"));
+  stasiun.forEach(function (b) {
+    b.setAttribute("aria-selected", "false");
+    b.addEventListener("click", function () {
+      var tab = b.getAttribute("data-tab");
+      if (tab === "desain" || tab === "terbit") { var g = el(tab === "desain" ? "galeri" : "p-sosmed"); if (g) g.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+      pilihTab(tab, true); window.scrollTo(0, 0);
     });
   });
   (function () {
     var awal = (location.hash || "").replace("#", "").split("/")[0];
     if (!awal) { try { awal = localStorage.getItem("gl-tab") || ""; } catch (e) {} }
-    pilihTab(awal || "kandidat", false);
+    pilihTab(awal || "database", false);
   })();
 
   function isiSungai(c) {
@@ -883,7 +928,6 @@
       el("f-masuk").hidden = false; el("manual").hidden = false; muatAntrean();
     });
   }
-  el("buka-tambah").addEventListener("click", function () { pilihTab("tambah", true); siapkanTambah(); });
   setInterval(function () { if (!document.hidden && !el("p-tambah").hidden && SESI) muatAntrean(); }, 30000);
   el("buka-kode").addEventListener("click", function () { el("buka-kode").hidden = true; el("masuk-kode").hidden = false; el("masuk-kode").focus(); });
 
@@ -994,13 +1038,14 @@
   }
   function muatKualitas() {
     if (PUBLIK || !SESI) return;
-    el("blok-kualitas").hidden = false;
+    el("blok-kualitas").hidden = false; el("cek-kunci").hidden = true;
     ambil("gl_kualitas_data?select=kode,nama,negara,status_qc,laporan_data&limit=1000").then(function (rows) { KUAL = rows; gambarKualitas(); })
       .catch(function (e) { el("t-kual").innerHTML = '<tr><td colspan="7" class="state err">' + esc(/PGRST205|42P01/.test(e.message) ? "View gl_kualitas_data belum dibuat, jalankan sql/020_gl_masukan.sql." : "Gagal memuat: " + e.message) + "</td></tr>"; });
   }
   el("f-kual").addEventListener("change", gambarKualitas);
+  el("buka-filter").addEventListener("click", function () { var f = el("filter-lain"); f.hidden = !f.hidden; el("buka-filter").textContent = f.hidden ? "Filter lain" : "Sembunyikan filter"; });
   if ((location.hash || "") === "#tambah") siapkanTambah();
-  el("muat-ulang").addEventListener("click", muat);
+
 
   // denyut: LIVE kalau ekstraksi terakhir kurang dari 26 jam, hitung mundur ke ekstraksi berikutnya.
   // Jadwal DAG gl_harian "0 20 * * *" UTC = 03.00 WIB (dags/gl_harian.py). FYGO belum menerbitkan apa pun.
@@ -1023,11 +1068,11 @@
   SIAP.then(function () {
     var t = el("tombol-admin");
     if (SESI) {
-      t.textContent = "Keluar admin (" + SESI.user.email + ")";
+      t.textContent = "Keluar admin"; t.title = SESI.user.email;
       t.addEventListener("click", function () { SB.auth.signOut().then(function () { location.reload(); }); });
     } else {
       t.addEventListener("click", function () {
-        pilihTab("qc", true);
+        pilihTab("database", true);
         var f = el("email-admin");
         if (f) { f.scrollIntoView({ behavior: "smooth", block: "center" }); f.focus(); }
       });
