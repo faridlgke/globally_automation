@@ -261,6 +261,7 @@
   .kotak-masuk.seret-aktif { border-color: var(--accent); }
   .kotak-masuk .seret { display: block; color: var(--ink); font-size: .92rem; line-height: 1.6; }
   .kotak-masuk .seret .redup { font-size: .82rem; }
+  .tautan-kecil { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; cursor: pointer; }
   .kotak-masuk .tautan-kecil { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; cursor: pointer; }
   .riwayat { border-left: 1px solid var(--rule); padding-left: 28px; }
   .riwayat ul { list-style: none; margin: 0; padding: 0; }
@@ -282,7 +283,28 @@
   .skor-bar { display: inline-block; width: 46px; height: 6px; border-radius: 3px; background: var(--rule-2); vertical-align: middle; margin-right: 6px; overflow: hidden; }
   .skor-bar i { display: block; height: 100%; background: var(--accent); }
   @media (max-width: 760px) { .form-stop .baris2 { grid-template-columns: 1fr; } }
-  #p-tambah [hidden] { display: none !important; }
+  #p-tambah [hidden], #p-beasiswa [hidden] { display: none !important; }
+  .kepala-hal { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+  .tab-saring { display: flex; gap: 2px; border-bottom: 1px solid var(--rule); margin: 0 0 22px; overflow-x: auto; scrollbar-width: none; }
+  .tab-saring::-webkit-scrollbar { display: none; }
+  .tab-saring button { background: none; border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 10px 14px 11px; font-weight: 600; font-size: .9rem; color: var(--ink-2); white-space: nowrap; }
+  .tab-saring button:hover { color: var(--ink); }
+  .tab-saring button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+  .tab-saring em { font-style: normal; font-weight: 500; color: var(--ink-3); margin-left: 4px; }
+  .menu button { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .lencana { font-style: normal; font-size: .7rem; font-weight: 700; background: var(--accent); color: #fff; border-radius: 999px; padding: 1px 8px; }
+  .tugas { list-style: none; margin: 0; padding: 0; border: 1px solid var(--rule); border-radius: 12px; max-width: 780px; }
+  .tugas li { display: flex; align-items: center; gap: 18px; padding: 16px 18px; border-top: 1px solid var(--rule); }
+  .tugas li:first-child { border-top: 0; }
+  .tugas .n { font-family: var(--judul); font-weight: 800; font-size: 1.5rem; min-width: 56px; }
+  .tugas .x { flex: 1; min-width: 0; }
+  .tugas .x b { display: block; font-weight: 600; }
+  .tugas .x span { color: var(--ink-2); font-size: .85rem; }
+  .tugas li.beres .n, .tugas li.beres .x b { color: var(--ink-3); }
+  .angka-beranda { display: flex; gap: 22px 44px; flex-wrap: wrap; margin-top: 36px; }
+  .angka-beranda b { display: block; font-family: var(--judul); font-weight: 800; font-size: 1.6rem; }
+  .angka-beranda span { color: var(--ink-2); font-size: .82rem; }
+  @media (max-width: 900px) { .tugas li { flex-wrap: wrap; gap: 8px 14px; padding: 14px 16px; } .tugas .n { min-width: 40px; font-size: 1.3rem; } .tugas .x { flex: 1 1 calc(100% - 60px); } .tugas li .ghost, .tugas li .utama { margin-left: 54px; } }
   @media (max-width: 1100px) { .tambah-dua { grid-template-columns: minmax(0, 1fr); } .riwayat { border-left: 0; padding-left: 0; } }
   /* sidebar 14 Nov 2026: menu Data dan Konten di kiri, isi di kanan; di HP jadi bilah atas */
   .sisi { position: fixed; inset: 0 auto 0 0; width: 228px; z-index: 20; display: flex; flex-direction: column; gap: 26px; padding: 22px 14px 18px; background: var(--panel); border-right: 1px solid var(--rule); overflow-y: auto; }
@@ -329,15 +351,14 @@
 </head>
 <body>
 <aside class="sisi">
-  <a class="merek" href="#database"><b>FYGO</b><span>Database beasiswa</span></a>
+  <a class="merek" href="#beranda"><b>FYGO</b><span>Database beasiswa</span></a>
   <nav class="menu" role="tablist" aria-label="Menu" aria-orientation="vertical">
-    <span class="grup">Data</span>
-    <button role="tab" data-tab="database" aria-selected="true">Database</button>
-    <button role="tab" data-tab="tambah">Tambah data</button>
-    <button role="tab" data-tab="cek">Perlu dicek</button>
-    <button role="tab" data-tab="pantau">Pantauan</button>
+    <button role="tab" data-tab="beranda" aria-selected="true">Beranda</button>
+    <button role="tab" data-tab="beasiswa">Beasiswa <i class="lencana" id="lencana-acc" hidden></i></button>
+    <button role="tab" data-tab="tambah">Tambah beasiswa</button>
+    <button role="tab" data-tab="robot">Kerja robot</button>
     <span class="grup">Konten</span>
-    <button role="tab" data-tab="sosmed">Alur sosmed</button>
+    <button role="tab" data-tab="sosmed">Sosmed</button>
   </nav>
   <div class="sisi-bawah">
     <p class="denyut" aria-live="off"><span class="live" id="live"><i aria-hidden="true"></i><b id="live-teks">LIVE</b></span><span class="hitung"><span id="hitung-label">memuat jadwal…</span> <b id="hitung-sisa"></b></span></p>
@@ -346,13 +367,30 @@
 </aside>
 
 <div class="wrap">
-  <section class="lembar" id="p-database" role="tabpanel">
-    <div class="blok">
-      <div class="skor" id="kartu-qc"><div class="state">memuat…</div></div>
-      
+  <section class="lembar" id="p-beranda" role="tabpanel">
+    <h2 class="judul-hal">Yang perlu kamu urus hari ini</h2>
+    <p class="sub-hal">Sisanya dikerjakan robot. Data diperbarui tiap pagi pukul 03.00 WIB.</p>
+    <p class="label-isian">Tugas</p>
+    <ul class="tugas" id="tugas"><li class="redup" style="padding: 18px">memuat…</li></ul>
+    <div class="angka-beranda" id="angka-beranda"></div>
+  </section>
+
+  <section class="lembar" id="p-beasiswa" role="tabpanel" hidden>
+    <div id="kartu-qc" hidden></div><div id="cek-kunci" hidden></div>
+    <div class="kepala-hal">
+      <div><h2 class="judul-hal">Beasiswa</h2><p class="sub-hal">Semua beasiswa di database. Klik nama untuk rincian dan buktinya.</p></div>
+      <span class="ekspor"><button id="unduh" type="button" class="ghost">Unduh Excel</button><a class="ghost" href="https://docs.google.com/spreadsheets/d/1Y2gUiDLCtAmLNHjMZv-D6yh9f6BvADZLKvkoH5r8I3E/edit" target="_blank" rel="noopener">Google Sheet ↗</a></span>
     </div>
-    <div class="blok">
-      <h3>Semua beasiswa <span>lolos dulu, lalu perlu cek. Klik nama untuk rincian dan buktinya</span></h3>
+    <nav class="tab-saring" aria-label="Saring beasiswa">
+      <button type="button" data-mode="semua" aria-pressed="true">Semua <em id="nm-semua"></em></button>
+      <button type="button" data-mode="acc" aria-pressed="false">Menunggu ACC <em id="nm-acc"></em></button>
+      <button type="button" data-mode="kurang" aria-pressed="false">Data kurang <em id="nm-kurang"></em></button>
+      <button type="button" data-mode="deadline" aria-pressed="false">Deadline dekat <em id="nm-deadline"></em></button>
+      <button type="button" data-mode="ditolak" aria-pressed="false">Ditolak <em id="nm-ditolak"></em></button>
+      <button type="button" data-mode="catatan" aria-pressed="false">Catatan STOP</button>
+    </nav>
+    <div data-mode-blok="tabel">
+    <div class="blok" style="margin-top: 0">
       <div class="alat">
         <input id="f-cari" type="search" placeholder="Cari nama atau penyelenggara…" aria-label="Cari">
         <select id="f-negara"><option value="">Semua negara</option></select>
@@ -367,8 +405,25 @@
         </span>
       </div>
       <div id="admin-qc"></div>
-      <div class="aksi"><span class="n" id="n-qc">–</span><span class="ekspor"><button id="unduh" type="button" class="ghost">Unduh Excel</button><a class="ghost" href="https://docs.google.com/spreadsheets/d/1Y2gUiDLCtAmLNHjMZv-D6yh9f6BvADZLKvkoH5r8I3E/edit" target="_blank" rel="noopener">Google Sheet ↗</a></span></div>
+      <div class="aksi"><span class="n" id="n-qc">–</span></div>
       <div class="scroll"><table><thead><tr><th>Beasiswa</th><th>Negara</th><th>Jenjang</th><th>Deadline</th><th>Status</th><th>Layak ID</th><th>QC</th><th class="num">Bukti</th><th>Sumber</th><th>Cek tim</th></tr></thead><tbody id="t-qc"><tr><td colspan="10" class="state">memuat…</td></tr></tbody></table></div>
+    </div>
+    </div>
+    <div data-mode-blok="kurang" hidden>
+    <div class="blok" id="blok-kualitas" style="margin-top: 0" hidden>
+      <p class="lead" style="margin-top: 0">Skor terendah dulu. Tempel tautan yang benar atau unggah PDF lewat tombol Tambah sumber.</p>
+      <div class="alat">
+        <select id="f-kual"><option value="">Semua yang kurang</option><option value="salah">Halaman salah</option><option value="wajib">Kolom wajib kosong</option><option value="gagal">Situs menolak bot</option><option value="curiga">Ada kata kunci tapi kosong</option></select>
+        <span class="n redup" id="n-kual" style="font-size: .84rem"></span>
+      </div>
+      <div class="scroll"><table><thead><tr><th>Skor</th><th>Beasiswa</th><th class="num">Halaman</th><th class="num">PDF</th><th>Kolom wajib kosong</th><th>Saran</th><th></th></tr></thead><tbody id="t-kual"><tr><td colspan="7" class="state">memuat…</td></tr></tbody></table></div>
+    </div>
+    </div>
+    <div data-mode-blok="catatan" hidden>
+    <div class="blok" id="blok-catatan" style="margin-top: 0" hidden>
+      <p class="lead" style="margin-top: 0">Feedback dari tombol STOP, diolah jadi aturan cek kualitas dan contoh untuk model.</p>
+      <div class="scroll"><table><thead><tr><th>Waktu</th><th>Beasiswa</th><th>Bagian</th><th>Feedback</th><th>Oleh</th><th>Diolah</th></tr></thead><tbody id="t-catatan"><tr><td colspan="6" class="state">memuat…</td></tr></tbody></table></div>
+    </div>
     </div>
     <dialog class="lihat kecil" id="stop-d" aria-labelledby="stop-judul">
       <div class="isi">
@@ -451,24 +506,10 @@
     </div>
   </section>
 
-  <section class="lembar" id="p-cek" role="tabpanel" hidden>
-    <div id="cek-kunci" hidden></div>
-    <div class="blok" id="blok-kualitas" hidden>
-      <h3>Kualitas data <span>skor terendah dulu: kolom yang terisi dari halaman resmi, halaman salah, dan saran tindakan</span></h3>
-      <div class="alat">
-        <select id="f-kual"><option value="">Semua</option><option value="salah">Halaman salah</option><option value="wajib">Kolom wajib kosong</option><option value="gagal">Situs menolak bot</option><option value="curiga">Ada kata kunci tapi kosong</option></select>
-        <span class="n redup" id="n-kual" style="font-size: .84rem"></span>
-      </div>
-      <div class="scroll"><table><thead><tr><th>Skor</th><th>Beasiswa</th><th class="num">Halaman</th><th class="num">PDF</th><th>Kolom wajib kosong</th><th>Saran</th><th></th></tr></thead><tbody id="t-kual"><tr><td colspan="7" class="state">memuat…</td></tr></tbody></table></div>
-    </div>
-    <div class="blok" id="blok-catatan" hidden>
-      <h3>Catatan algoritma <span>feedback STOP, diolah jadi aturan cek kualitas dan contoh untuk model</span></h3>
-      <div class="scroll"><table><thead><tr><th>Waktu</th><th>Beasiswa</th><th>Bagian</th><th>Feedback</th><th>Oleh</th><th>Diolah</th></tr></thead><tbody id="t-catatan"><tr><td colspan="6" class="state">memuat…</td></tr></tbody></table></div>
-    </div>
-  </section>
-
-  <section class="lembar" id="p-pantau" role="tabpanel" hidden>
-    <div class="blok">
+  <section class="lembar" id="p-robot" role="tabpanel" hidden>
+    <h2 class="judul-hal">Kerja robot</h2>
+    <p class="sub-hal">Yang dikerjakan robot di belakang layar: halaman resmi yang dipantau dan kandidat beasiswa baru. Buka kalau ada yang terasa janggal.</p>
+    <div class="blok" hidden>
       <h3>Deadline terdekat <span>lolos atau masih dicek, terdekat dulu, status dihitung dari tanggal</span></h3>
       <div class="scroll"><table><thead><tr><th>Deadline</th><th class="num">Hari</th><th>Beasiswa</th><th>Negara</th><th>Jenjang</th><th>Dana</th><th>Layak ID</th><th>QC</th></tr></thead><tbody id="t-deadline"><tr><td colspan="8" class="state">memuat…</td></tr></tbody></table></div>
     </div>
@@ -536,9 +577,9 @@
 (function () {
   var URL_ = "https://idezvrptuhqkwkwaonzq.supabase.co/rest/v1/";
   var KEY = "sb_publishable_Hm0-sGWlq_XwDXtHHCT5JA_n6_jhg0a";
-  var TAHAP = ["database", "tambah", "cek", "pantau", "sosmed"];
+  var TAHAP = ["beranda", "beasiswa", "tambah", "robot", "sosmed"];
   // nama tab lama (tautan #qc/GLXXXX, localStorage) dan tahap sungai di Sosmed dipetakan ke menu baru
-  var PETA_TAB = { qc: "database", kandidat: "pantau", halaman: "pantau", deadline: "pantau", desain: "sosmed", terbit: "sosmed" };
+  var PETA_TAB = { database: "beasiswa", qc: "beasiswa", cek: "beasiswa", deadline: "beasiswa", pantau: "robot", kandidat: "robot", halaman: "robot", desain: "sosmed", terbit: "sosmed" };
   var NAMA_SUMBER = { "feed:scholars4dev": "Scholars4Dev", "feed:oppdesk": "Opportunity Desk", "feed:profellow": "ProFellow", "feed:indbeasiswa": "INDBeasiswa",
     "feed:beasiswa_id": "Beasiswa.id", "feed:scholarshipscorner": "Scholarships Corner", "feed:eacea": "Katalog Erasmus Mundus", "gnews:gn_beasiswa_ln": "Google News: beasiswa luar negeri",
     "gnews:gn_scholarship_id": "Google News: scholarship Indonesia", "gnews:gn_beasiswa_my": "Google News: beasiswa Malaysia", "kiv": "Sheet KIV Excel", "excel": "Excel benih", "manual": "Manual" };
@@ -615,7 +656,7 @@
 
   function pilihTab(nm, simpan) {
     nm = PETA_TAB[nm] || nm;
-    if (TAHAP.indexOf(nm) < 0) nm = "database";
+    if (TAHAP.indexOf(nm) < 0) nm = "beranda";
     document.querySelectorAll(".menu [data-tab]").forEach(function (b) { b.setAttribute("aria-selected", b.getAttribute("data-tab") === nm ? "true" : "false"); });
     document.querySelectorAll(".lembar").forEach(function (p) { p.hidden = p.id !== "p-" + nm; });
     if (simpan) { try { localStorage.setItem("gl-tab", nm); } catch (e) {} if (history.replaceState) history.replaceState(null, "", "#" + nm); }
@@ -643,7 +684,7 @@
   (function () {
     var awal = (location.hash || "").replace("#", "").split("/")[0];
     if (!awal) { try { awal = localStorage.getItem("gl-tab") || ""; } catch (e) {} }
-    pilihTab(awal || "database", false);
+    pilihTab(awal || "beranda", false);
   })();
 
   function isiSungai(c) {
@@ -705,7 +746,8 @@
   }
   function saring() {
     var qc = el("f-qc").value, layak = el("f-layak").value, negara = el("f-negara").value, jenjang = el("f-jenjang").value, buka = el("f-buka").value, cari = el("f-cari").value.trim().toLowerCase(), asal = el("f-asal").value;
-    return DATA.filter(function (r) {
+    var rows = DATA.filter(function (r) {
+      if (!cocokMode(r, MODE)) return false;
       if (asal === "temuan" && (r.sumber_benih === "excel" || r.sumber_benih === "kiv" || r.manual)) return false;
       if (asal === "excel" && !(r.sumber_benih === "excel" || r.sumber_benih === "kiv" || r.manual)) return false;
       if (qc && r.status_qc !== qc) return false;
@@ -718,6 +760,55 @@
       if (cari && (String(r.nama) + " " + String(r.penyelenggara)).toLowerCase().indexOf(cari) < 0) return false;
       return true;
     });
+    if (MODE === "deadline") rows.sort(function (a, b) { return String(a.deadline_iso).localeCompare(String(b.deadline_iso)); });
+    return rows;
+  }
+  // tab di halaman Beasiswa: Menunggu ACC = belum dicek tim dan tidak ditolak mesin
+  var MODE = "semua";
+  function cocokMode(r, m) {
+    if (m === "acc") return !r.qc_manusia && ["lolos", "terbit", "perlu_cek"].indexOf(r.status_qc) >= 0;
+    if (m === "deadline") { var h = hari(r.deadline_iso); return h !== null && h >= 0 && h <= 30 && r.status_qc !== "ditolak" && r.qc_manusia !== "stop"; }
+    if (m === "ditolak") return r.status_qc === "ditolak" || r.qc_manusia === "stop";
+    return true;
+  }
+  function kurangData(l) { return !!(l && (l.halaman_salah || (l.gagal || []).length || (l.wajib_kosong || []).length)); }
+  function pilihMode(m) {
+    MODE = m;
+    document.querySelectorAll(".tab-saring [data-mode]").forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-mode") === m ? "true" : "false"); });
+    document.querySelectorAll("[data-mode-blok]").forEach(function (d) { var k = d.getAttribute("data-mode-blok"); d.hidden = k !== (m === "kurang" || m === "catatan" ? m : "tabel"); });
+    if (m !== "kurang" && m !== "catatan") gambarQc();
+  }
+  document.querySelectorAll(".tab-saring [data-mode]").forEach(function (b) { b.addEventListener("click", function () { pilihMode(b.getAttribute("data-mode")); }); });
+  function hitungMode() {
+    ["semua", "acc", "deadline", "ditolak"].forEach(function (m) { el("nm-" + m).textContent = DATA.filter(function (r) { return cocokMode(r, m); }).length; });
+    el("nm-kurang").textContent = KUAL.length ? KUAL.filter(function (r) { return kurangData(r.laporan_data); }).length : "";
+    var n = Number(el("nm-acc").textContent) || 0;
+    el("lencana-acc").textContent = n; el("lencana-acc").hidden = !n;
+  }
+  // Beranda: daftar tugas dari data yang sudah dimuat
+  var CORONG = null, GAGAL_MASUK = 0;
+  function bukaBeasiswa(m, fk) { pilihTab("beasiswa", true); pilihMode(m); if (fk !== undefined) { el("f-kual").value = fk; gambarKualitas(); } window.scrollTo(0, 0); }
+  function gambarBeranda() {
+    if (!DATA.length) return;
+    hitungMode();
+    var nAcc = DATA.filter(function (r) { return cocokMode(r, "acc"); }).length;
+    var nSalah = KUAL.filter(function (r) { var l = r.laporan_data || {}; return l.halaman_salah || (l.gagal || []).length; }).length;
+    var nDl = DATA.filter(function (r) { var h = hari(r.deadline_iso); return h !== null && h >= 0 && h <= 14 && r.status_qc !== "ditolak" && r.qc_manusia !== "stop"; }).length;
+    var T = [
+      [nAcc, "Beasiswa menunggu ACC", "Sudah diisi robot. Cek sebentar, lalu ACC atau STOP.", "Mulai review", function () { bukaBeasiswa("acc"); }],
+      [nSalah, "Halaman resmi salah atau diblokir", "Tempel tautan yang benar atau unggah PDF-nya.", "Lihat daftar", function () { bukaBeasiswa("kurang", "salah"); }],
+      [GAGAL_MASUK, "Masukan gagal diproses", "Dari Tambah beasiswa, alasannya ada di riwayat.", "Lihat", function () { pilihTab("tambah", true); siapkanTambah(); }],
+      [nDl, "Deadline dalam 14 hari", "Bahan DEADLINE WATCH untuk sosmed.", "Lihat", function () { bukaBeasiswa("deadline"); }]
+    ];
+    var ul = el("tugas");
+    ul.innerHTML = T.map(function (x, i) {
+      return '<li' + (x[0] ? "" : ' class="beres"') + '><span class="n">' + x[0] + '</span><span class="x"><b>' + esc(x[1]) + "</b><span>" + esc(x[0] ? x[2] : "Beres, tidak ada yang perlu diurus.") + "</span></span>" + (x[0] ? '<button type="button" class="' + (i === 0 ? "utama" : "ghost") + '" data-i="' + i + '">' + esc(x[3]) + "</button>" : "") + "</li>";
+    }).join("");
+    ul.querySelectorAll("button[data-i]").forEach(function (b) { b.addEventListener("click", T[Number(b.getAttribute("data-i"))][4]); });
+    var tayang = DATA.filter(function (r) { return ["lolos", "terbit"].indexOf(r.status_qc) >= 0 && r.qc_manusia !== "stop"; }).length;
+    var skor = KUAL.map(function (r) { return (r.laporan_data || {}).skor; }).filter(function (s) { return s != null; });
+    var A = [[id_(DATA.length), "beasiswa di database"], [id_(tayang), "lolos cek mesin"], [skor.length ? Math.round(skor.reduce(function (a, b) { return a + b; }, 0) / skor.length) : "–", "skor kelengkapan rata-rata"], [CORONG ? "+" + Number(CORONG.kandidat_24jam) : "–", "temuan baru 24 jam"]];
+    el("angka-beranda").innerHTML = A.map(function (a) { return "<div><b>" + a[0] + "</b><span>" + esc(a[1]) + "</span></div>"; }).join("");
   }
   function gambarQc() {
     var rows = saring(), tb = el("t-qc");
@@ -911,7 +1002,7 @@
   }
   function muat() {
     el("dimuat").textContent = "memuat…";
-    ambil("gl_corong?select=*").then(function (rows) { if (rows[0]) isiSungai(rows[0]); }).catch(function (e) { el("dimuat").textContent = pesanGalat(e, "gl_corong"); ["kartu-kandidat", "kartu-halaman", "kartu-qc"].forEach(function (id) { el(id).innerHTML = '<div class="state err">Angka belum bisa dimuat, coba Muat ulang.</div>'; }); });
+    ambil("gl_corong?select=*").then(function (rows) { if (rows[0]) { CORONG = rows[0]; isiSungai(rows[0]); gambarBeranda(); } }).catch(function (e) { el("dimuat").textContent = pesanGalat(e, "gl_corong"); ["kartu-kandidat", "kartu-halaman", "kartu-qc"].forEach(function (id) { el(id).innerHTML = '<div class="state err">Angka belum bisa dimuat, coba Muat ulang.</div>'; }); });
     ambil("gl_denyut_sumber?select=*").then(gambarDenyut).catch(function (e) { el("t-denyut").innerHTML = '<tr><td colspan="8" class="state err">' + esc(pesanGalat(e, "gl_denyut_sumber")) + "</td></tr>"; });
     ambil("gl_kandidat_terbaru?select=*&limit=120").then(gambarKandidat).catch(function (e) { el("t-kandidat").innerHTML = '<tr><td colspan="4" class="state err">' + esc(pesanGalat(e, "gl_kandidat_terbaru")) + "</td></tr>"; });
     ambil("gl_konten_terbaru?select=*&limit=120").then(gambarGaleri).catch(function (e) { el("galeri").innerHTML = '<div class="state err">' + esc(pesanGalat(e, "gl_konten_terbaru").replace("sql/003_gl_halaman_status.sql", "sql/004_gl_konten.sql")) + "</div>"; });
@@ -922,7 +1013,7 @@
       // yang sudah lolos di atas, lalu perlu cek, lalu sisanya, supaya baris yang berguna tidak tenggelam
       var urut = { terbit: 0, lolos: 1, perlu_cek: 2, ditolak: 3, impor: 4 };
       rows.sort(function (a, b) { return (urut[a.status_qc] - urut[b.status_qc]) || String(a.negara).localeCompare(String(b.negara)) || String(a.nama).localeCompare(String(b.nama)); });
-      PUBLIK = false; el("admin-qc").innerHTML = ""; DATA = rows; isiNegara(); gambarQc(); gambarDeadline(); muatCatatan(); muatKualitas(); isiDaftarBeasiswa(); if (!el("p-tambah").hidden) muatAntrean();
+      PUBLIK = false; el("admin-qc").innerHTML = ""; DATA = rows; isiNegara(); gambarQc(); gambarDeadline(); muatCatatan(); muatKualitas(); isiDaftarBeasiswa(); if (!el("p-tambah").hidden) muatAntrean(); gambarBeranda(); muatGagalMasuk();
       var m = (location.hash || "").match(/^#qc\/(GL[A-Z0-9]{4})$/); if (m) { pilihTab("qc", false); bukaRinci(m[1]); }
     }).catch(function (e) { el("t-qc").innerHTML = '<tr><td colspan="10" class="state err">' + esc(pesanGalat(e, "gl_ekspor_baris")) + "</td></tr>"; });
   }
@@ -937,6 +1028,12 @@
       pesan(idPesan, r.masuk + " masuk antrean");
       muatAntrean(); return true;
     }).catch(function (e) { pesan(idPesan, /PGRST202|42883|gl_masukan/.test(e.message) ? "Fungsi belum ada, jalankan sql/020_gl_masukan.sql." : "Gagal: " + e.message, true); return false; });
+  }
+  function muatGagalMasuk() {
+    ambil("gl_masukan_daftar?select=status,at_wib&status=eq.gagal").then(function (rows) {
+      GAGAL_MASUK = rows.filter(function (r) { var d = new Date(String(r.at_wib).replace(" ", "T") + (/[zZ]|[+-]\d\d:?\d\d$/.test(r.at_wib) ? "" : "+07:00")); return Date.now() - d < 7 * 86400000; }).length;
+      gambarBeranda();
+    }).catch(function () {});
   }
   function pendek(u) { return String(u || "").replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""); }
   function sejak(s) {
@@ -957,7 +1054,7 @@
         if (r.pesan) ket += (ket ? ". " : "") + esc(r.pesan);
         return '<li><div class="a"><span class="u" title="' + esc(r.isi || "") + '">' + esc(pendek(r.isi)) + "</span>" + status(ST_MASUK, r.status) + '</div><p class="k">' + (ket ? ket + " · " : "") + sejak(r.at_wib) + "</p></li>";
       }).join("");
-      ul.querySelectorAll("a[data-buka]").forEach(function (a) { a.addEventListener("click", function (ev) { ev.preventDefault(); pilihTab("database", true); bukaRinci(a.getAttribute("data-buka")); }); });
+      ul.querySelectorAll("a[data-buka]").forEach(function (a) { a.addEventListener("click", function (ev) { ev.preventDefault(); pilihTab("beasiswa", true); bukaRinci(a.getAttribute("data-buka")); }); });
     }).catch(function (e) { el("t-antrean").innerHTML = '<li class="state err">' + esc(/PGRST205|42P01/.test(e.message) ? "Antrean belum dibuat, jalankan sql/020_gl_masukan.sql." : "Gagal memuat: " + e.message) + "</li>"; });
   }
   // cara: tautan, berkas, atau manual. Hanya form yang dipilih yang tampil.
@@ -1096,7 +1193,7 @@
     var f = el("f-kual").value;
     var rows = KUAL.filter(function (r) {
       var l = r.laporan_data || {};
-      return !f || (f === "salah" && l.halaman_salah) || (f === "wajib" && (l.wajib_kosong || []).length) || (f === "gagal" && (l.gagal || []).length) || (f === "curiga" && (l.curiga || []).length);
+      return (!f && kurangData(l)) || (f === "salah" && l.halaman_salah) || (f === "wajib" && (l.wajib_kosong || []).length) || (f === "gagal" && (l.gagal || []).length) || (f === "curiga" && (l.curiga || []).length);
     });
     el("n-kual").textContent = rows.length + " beasiswa";
     var tb = el("t-kual");
@@ -1117,7 +1214,7 @@
   function muatKualitas() {
     if (PUBLIK || !SESI) return;
     el("blok-kualitas").hidden = false; el("cek-kunci").hidden = true;
-    ambil("gl_kualitas_data?select=kode,nama,negara,status_qc,laporan_data&limit=1000").then(function (rows) { KUAL = rows; gambarKualitas(); })
+    ambil("gl_kualitas_data?select=kode,nama,negara,status_qc,laporan_data&limit=1000").then(function (rows) { KUAL = rows; gambarKualitas(); gambarBeranda(); })
       .catch(function (e) { el("t-kual").innerHTML = '<tr><td colspan="7" class="state err">' + esc(/PGRST205|42P01/.test(e.message) ? "View gl_kualitas_data belum dibuat, jalankan sql/020_gl_masukan.sql." : "Gagal memuat: " + e.message) + "</td></tr>"; });
   }
   el("f-kual").addEventListener("change", gambarKualitas);
