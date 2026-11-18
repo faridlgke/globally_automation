@@ -786,7 +786,7 @@
     el("lencana-acc").textContent = n; el("lencana-acc").hidden = !n;
   }
   // Beranda: daftar tugas dari data yang sudah dimuat
-  var CORONG = null, GAGAL_MASUK = 0;
+  var CORONG = null, GAGAL_MASUK = 0, KABAR = null;
   function bukaBeasiswa(m, fk) { pilihTab("beasiswa", true); pilihMode(m); if (fk !== undefined) { el("f-kual").value = fk; gambarKualitas(); } window.scrollTo(0, 0); }
   function gambarBeranda() {
     if (!DATA.length) return;
@@ -808,6 +808,7 @@
     var tayang = DATA.filter(function (r) { return ["lolos", "terbit"].indexOf(r.status_qc) >= 0 && r.qc_manusia !== "stop"; }).length;
     var skor = KUAL.map(function (r) { return (r.laporan_data || {}).skor; }).filter(function (s) { return s != null; });
     var A = [[id_(DATA.length), "beasiswa di database"], [id_(tayang), "lolos cek mesin"], [skor.length ? Math.round(skor.reduce(function (a, b) { return a + b; }, 0) / skor.length) : "–", "skor kelengkapan rata-rata"], [CORONG ? "+" + Number(CORONG.kandidat_24jam) : "–", "temuan baru 24 jam"]];
+    if (KABAR) A.push([id_(KABAR.hari_ini), "email Ollie hari ini, " + id_(KABAR.pekan_ini) + " sepekan, " + id_(KABAR.pro_nyala) + " Pro berlangganan"]);
     el("angka-beranda").innerHTML = A.map(function (a) { return "<div><b>" + a[0] + "</b><span>" + esc(a[1]) + "</span></div>"; }).join("");
   }
   function gambarQc() {
@@ -1034,6 +1035,8 @@
       GAGAL_MASUK = rows.filter(function (r) { var d = new Date(String(r.at_wib).replace(" ", "T") + (/[zZ]|[+-]\d\d:?\d\d$/.test(r.at_wib) ? "" : "+07:00")); return Date.now() - d < 7 * 86400000; }).length;
       gambarBeranda();
     }).catch(function () {});
+    // email Ollie (sql/022): angka di Beranda, diam kalau fungsinya belum ada
+    kirim("gl_kabar_ringkas", {}).then(function (k) { KABAR = k; gambarBeranda(); }).catch(function () {});
   }
   function pendek(u) { return String(u || "").replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""); }
   function sejak(s) {
